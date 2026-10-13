@@ -1,0 +1,6 @@
+# Testing & Code Quality (Development only)
+pytest>=8.2.0
+pytest-django>=4.8.0
+factory-boy>=3.3.0
+black>=24.4.0
+ruff>=0.4.0
