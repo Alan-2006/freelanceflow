@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoices - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Invoices & Billing</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Generate professional milestone-linked invoices, monitor payment statuses, and trigger automated reminders.</p>
+        </div>
+        <a href="{% url 'invoicing:create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Create Invoice</span>
+        </a>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto text-sm">
+        <a href="{% url 'invoicing:list' %}" 
+           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == 'All' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            All Invoices
+        </a>
+        {% for val, label in statuses %}
+        <a href="?status={{ val }}" 
+           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == val %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Invoices Table -->
+    {% if invoices %}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/30">
+                        <th class="py-3 px-5">Invoice #</th>
+                        <th class="py-3 px-5">Client</th>
+                        <th class="py-3 px-5">Issue Date</th>
+                        <th class="py-3 px-5">Due Date</th>
+                        <th class="py-3 px-5">Total</th>
+                        <th class="py-3 px-5">Status</th>
+                        <th class="py-3 px-5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for inv in invoices %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            <a href="{% url 'invoicing:detail' pk=inv.pk %}" class="hover:text-indigo-600">
+                                {{ inv.invoice_number }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="font-semibold text-slate-900 dark:text-white block">{{ inv.client.display_title }}</span>
+                            <span class="text-[10px] text-slate-400">{{ inv.project.title|default:"General Invoicing" }}</span>
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-500">{{ inv.issue_date|date:"M d, Y" }}</td>
+                        <td class="py-3.5 px-5 text-slate-500">{{ inv.due_date|date:"M d, Y" }}</td>
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            ${{ inv.total_amount }}
+                            {% if inv.balance_due > 0 and inv.balance_due != inv.total_amount %}
+                            <span class="block text-[10px] text-amber-500 font-normal">Bal: ${{ inv.balance_due }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold
+                                {% if inv.status == 'Paid' %}bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400
+                                {% elif inv.status == 'Overdue' %}bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400
+                                {% elif inv.status == 'Sent' or inv.status == 'Viewed' %}bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400
+                                {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300{% endif %}">
+                                {{ inv.status }}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-5 text-right space-x-2">
+                            <a href="{% url 'invoicing:pdf' pk=inv.pk %}" target="_blank" title="View PDF" class="p-1.5 text-slate-400 hover:text-indigo-600 transition-colors inline-block">
+                                <i data-lucide="file-down" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{% url 'invoicing:detail' pk=inv.pk %}" class="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                                <span>Manage</span>
+                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <!-- Smart Empty State -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center max-w-lg mx-auto">
+        <div class="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="file-text" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white">No Invoices Found</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
+            Create an invoice from approved milestones, convert unbilled hourly timesheets, or bill custom work.
+        </p>
+        <a href="{% url 'invoicing:create' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Create First Invoice</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

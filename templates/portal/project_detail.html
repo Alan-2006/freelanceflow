@@ -1,0 +1,130 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}{{ project.title }} - Client Project View{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div>
+        <a href="{% url 'portal:dashboard' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Portal Overview</span>
+        </a>
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900">{{ project.title }}</h1>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                {{ project.status }}
+            </span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">
+            Freelancer: {{ freelancer_profile.display_name }} &bull; Budget: ${{ project.budget }}
+        </p>
+    </div>
+
+    <!-- Milestone Journey Roadmap -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold font-heading text-slate-900 flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-indigo-600"></i>
+                Milestone Roadmap
+            </h3>
+            <span class="text-xs font-semibold text-indigo-600">{{ project.progress_percentage }}% Completed</span>
+        </div>
+
+        <div class="relative py-4">
+            <div class="absolute top-1/2 left-0 right-0 h-1 bg-slate-100 -translate-y-1/2 z-0"></div>
+            
+            <div class="relative z-10 flex items-center justify-between overflow-x-auto pb-4 gap-6">
+                {% for m in milestones %}
+                <div class="flex flex-col items-center min-w-[130px] text-center">
+                    <div class="h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs shadow-sm
+                        {% if m.status == 'Approved' or m.status == 'Paid' %}bg-emerald-500 text-white ring-4 ring-emerald-100
+                        {% elif m.status == 'Submitted' %}bg-amber-500 text-white ring-4 ring-amber-100 animate-pulse
+                        {% else %}bg-slate-200 text-slate-600{% endif %}">
+                        {% if m.status == 'Approved' or m.status == 'Paid' %}
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                        {% else %}
+                            {{ forloop.counter }}
+                        {% endif %}
+                    </div>
+                    <span class="mt-2 text-xs font-bold text-slate-900 truncate max-w-[120px]">{{ m.title }}</span>
+                    <span class="text-[10px] text-slate-400">${{ m.amount }} &bull; {{ m.due_date|date:"M d" }}</span>
+                    <span class="mt-0.5 text-[10px] font-semibold
+                        {% if m.status == 'Approved' %}text-emerald-600
+                        {% elif m.status == 'Submitted' %}text-amber-600
+                        {% elif m.status == 'Rejected' %}text-rose-500
+                        {% else %}text-slate-400{% endif %}">
+                        {{ m.get_status_display }}
+                    </span>
+                    {% if m.status == 'Submitted' %}
+                    <a href="{% url 'portal:milestone_review' milestone_pk=m.pk %}" class="mt-1 text-[10px] font-bold text-amber-600 hover:underline">
+                        Review Now &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Milestones Breakdown Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+        <h3 class="text-base font-bold font-heading text-slate-900 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-indigo-600"></i>
+            Milestones & Deliverable Status
+        </h3>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider">
+                        <th class="pb-2">Milestone</th>
+                        <th class="pb-2">Due Date</th>
+                        <th class="pb-2">Amount</th>
+                        <th class="pb-2">Status</th>
+                        <th class="pb-2 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for m in milestones %}
+                    <tr>
+                        <td class="py-3">
+                            <span class="font-bold text-slate-900 block">{{ m.title }}</span>
+                            <span class="text-[11px] text-slate-500">{{ m.description }}</span>
+                            {% if m.deliverable_notes %}
+                            <div class="mt-1 p-2 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-700">
+                                <strong>Deliverable notes:</strong> {{ m.deliverable_notes }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 text-slate-500">{{ m.due_date|date:"M d, Y" }}</td>
+                        <td class="py-3 font-semibold text-slate-900">${{ m.amount }}</td>
+                        <td class="py-3">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-semibold
+                                {% if m.status == 'Approved' %}bg-emerald-100 text-emerald-700
+                                {% elif m.status == 'Submitted' %}bg-amber-100 text-amber-700
+                                {% elif m.status == 'Rejected' %}bg-rose-100 text-rose-700
+                                {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ m.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 text-right">
+                            {% if m.status == 'Submitted' %}
+                            <a href="{% url 'portal:milestone_review' milestone_pk=m.pk %}" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold">
+                                Review & Decide
+                            </a>
+                            {% elif m.status == 'Approved' %}
+                            <span class="text-emerald-600 font-semibold flex items-center justify-end gap-1">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Approved
+                            </span>
+                            {% else %}
+                            <span class="text-slate-400">In Progress</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice {{ invoice.invoice_number }} - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto" x-data="{ copied: false }">
+    <!-- Top Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <a href="{% url 'invoicing:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>Back to Invoices</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900 dark:text-white">
+                    {{ invoice.invoice_number }}
+                </h1>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    {% if invoice.status == 'Paid' %}bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400
+                    {% elif invoice.status == 'Overdue' %}bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400
+                    {% elif invoice.status == 'Sent' or invoice.status == 'Viewed' %}bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400
+                    {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300{% endif %}">
+                    {{ invoice.get_status_display }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Client: <a href="{% url 'clients:detail' pk=invoice.client.pk %}" class="font-semibold text-indigo-600 hover:underline">{{ invoice.client.display_title }}</a>
+                &bull; Due {{ invoice.due_date|date:"F d, Y" }}
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 flex-wrap">
+            {% if invoice.status == 'Draft' %}
+            <form method="post" action="{% url 'invoicing:send' pk=invoice.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs flex items-center gap-1.5">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                    <span>Mark as Sent</span>
+                </button>
+            </form>
+            {% endif %}
+
+            {% if invoice.project %}
+            <form method="post" action="{% url 'invoicing:convert_time' pk=invoice.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 flex items-center gap-1.5" title="Pull unbilled timesheets into this invoice">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-500"></i>
+                    <span>Pull Timesheets</span>
+                </button>
+            </form>
+            {% endif %}
+
+            <a href="{% url 'invoicing:pdf' pk=invoice.pk %}" target="_blank" class="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Download PDF</span>
+            </a>
+
+            <a href="{% url 'payments:record' %}?invoice={{ invoice.pk }}" class="px-3.5 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-xl hover:bg-emerald-100 flex items-center gap-1.5">
+                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                <span>Record Payment</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Public Tokenized Link Share Bar -->
+    <div class="bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="h-9 w-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                <i data-lucide="link" class="w-4 h-4"></i>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-900 dark:text-white">Public Invoice & Checkout Link</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                    {% if invoice.viewed_at %}
+                    <span class="text-emerald-600 font-semibold">Client viewed on {{ invoice.viewed_at|date:"M d, H:i" }}</span>
+                    {% else %}
+                    Send this link to the client for instant browser payment and PDF download.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <input type="text" readonly value="{{ public_url }}" 
+                   class="w-full sm:w-80 px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-mono">
+            <button @click="navigator.clipboard.writeText('{{ public_url }}'); copied = true; setTimeout(() => copied = false, 2500)"
+                    class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 rounded-lg shrink-0 flex items-center gap-1">
+                <i data-lucide="copy" class="w-3.5 h-3.5 text-indigo-500" x-show="!copied"></i>
+                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500" x-show="copied"></i>
+                <span x-text="copied ? 'Copied' : 'Copy'"></span>
+            </button>
+            <a href="{{ public_url }}" target="_blank" class="px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shrink-0">
+                Open
+            </a>
+        </div>
+    </div>
+
+    <!-- Invoice Details & Line Items Sheet -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-8">
+        <!-- Sheet Header -->
+        <div class="flex flex-col sm:flex-row justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <h3 class="text-xl font-bold font-heading text-slate-900 dark:text-white">{{ invoice.freelancer.display_name }}</h3>
+                {% if invoice.freelancer.tax_id %}<p class="text-xs text-slate-400">Tax ID: {{ invoice.freelancer.tax_id }}</p>{% endif %}
+                <p class="text-xs text-slate-500 mt-1 whitespace-pre-line">{{ invoice.freelancer.address }}</p>
+            </div>
+            <div class="sm:text-right">
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider font-mono">INVOICE</span>
+                <p class="text-lg font-bold font-heading text-slate-900 dark:text-white">{{ invoice.invoice_number }}</p>
+                <div class="text-xs text-slate-500 space-y-0.5 mt-1">
+                    <p>Issue Date: {{ invoice.issue_date|date:"F d, Y" }}</p>
+                    <p>Due Date: {{ invoice.due_date|date:"F d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billed to -->
+        <div class="text-xs">
+            <span class="font-semibold text-slate-400 uppercase tracking-wider block mb-1">Billed To</span>
+            <p class="font-bold text-slate-900 dark:text-white text-sm">{{ invoice.client.display_title }}</p>
+            <p class="text-slate-500">{{ invoice.client.name }} &bull; {{ invoice.client.email }}</p>
+            {% if invoice.client.address %}<p class="text-slate-500 whitespace-pre-line">{{ invoice.client.address }}</p>{% endif %}
+        </div>
+
+        <!-- Items Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider">
+                        <th class="pb-2">Description</th>
+                        <th class="pb-2 text-center">Qty / Hours</th>
+                        <th class="pb-2 text-right">Unit Price</th>
+                        <th class="pb-2 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for item in invoice.line_items.all %}
+                    <tr>
+                        <td class="py-3 font-semibold text-slate-900 dark:text-white">{{ item.description }}</td>
+                        <td class="py-3 text-center text-slate-500">{{ item.quantity }}</td>
+                        <td class="py-3 text-right text-slate-500 font-mono">${{ item.unit_price }}</td>
+                        <td class="py-3 text-right font-mono font-bold text-slate-900 dark:text-white">${{ item.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totals & Payment Instructions -->
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+            <!-- Payment Instructions & QR -->
+            <div class="space-y-3 max-w-sm">
+                <span class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block">Payment Instructions</span>
+                {% if invoice.freelancer.bank_details %}
+                <p class="text-xs text-slate-500 whitespace-pre-line">{{ invoice.freelancer.bank_details }}</p>
+                {% endif %}
+                {% if invoice.freelancer.upi_id %}
+                <p class="text-xs text-slate-700 dark:text-slate-300"><strong>UPI ID:</strong> {{ invoice.freelancer.upi_id }}</p>
+                {% endif %}
+                {% if qr_code_base64 %}
+                <div class="flex items-center gap-3 pt-1">
+                    <img src="{{ qr_code_base64 }}" alt="QR Code" class="h-20 w-20 rounded-lg border border-slate-200 dark:border-slate-700 p-1">
+                    <span class="text-[11px] text-slate-400">Scan with any mobile camera / UPI app to pay directly.</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Totals Box -->
+            <div class="w-full sm:w-64 space-y-2 text-xs text-right">
+                <div class="flex justify-between text-slate-500">
+                    <span>Subtotal:</span>
+                    <span class="font-mono font-semibold">${{ invoice.subtotal }}</span>
+                </div>
+                {% if invoice.tax_amount > 0 %}
+                <div class="flex justify-between text-slate-500">
+                    <span>Tax ({{ invoice.tax_rate }}%):</span>
+                    <span class="font-mono font-semibold">${{ invoice.tax_amount }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.late_fee_amount > 0 %}
+                <div class="flex justify-between text-rose-600 font-semibold">
+                    <span>Late Fee:</span>
+                    <span class="font-mono">+${{ invoice.late_fee_amount }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.discount_amount > 0 %}
+                <div class="flex justify-between text-emerald-600">
+                    <span>Discount:</span>
+                    <span class="font-mono">-${{ invoice.discount_amount }}</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between text-base font-bold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <span>Total Amount:</span>
+                    <span class="font-mono text-indigo-600">${{ invoice.total_amount }}</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500">
+                    <span>Amount Paid:</span>
+                    <span class="font-mono text-emerald-600">${{ invoice.amount_paid }}</span>
+                </div>
+                <div class="flex justify-between text-sm font-bold text-slate-900 dark:text-white pt-1">
+                    <span>Balance Due:</span>
+                    <span class="font-mono text-rose-600">${{ invoice.balance_due }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

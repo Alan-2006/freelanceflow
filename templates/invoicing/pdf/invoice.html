@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 8pt;
+                color: #94a3b8;
+            }
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 9pt;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+        .header {
+            width: 100%;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header table { width: 100%; }
+        .brand-title {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0f172a;
+        }
+        .inv-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: {{ freelancer.brand_color|default:"#4f46e5" }};
+            text-align: right;
+        }
+        .inv-meta {
+            text-align: right;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+        .client-box {
+            margin-bottom: 25px;
+            font-size: 8.5pt;
+        }
+        .client-box h3 {
+            font-size: 11pt;
+            margin: 2px 0;
+            color: #0f172a;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .items-table th {
+            background-color: #f8fafc;
+            border-bottom: 1.5px solid #cbd5e1;
+            padding: 8px;
+            text-align: left;
+            font-size: 8pt;
+            text-transform: uppercase;
+            color: #475569;
+        }
+        .items-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .totals-table {
+            width: 45%;
+            margin-left: auto;
+            border-collapse: collapse;
+            font-size: 9pt;
+        }
+        .totals-table td {
+            padding: 4px 8px;
+        }
+        .grand-total {
+            font-size: 11pt;
+            font-weight: bold;
+            border-top: 1.5px solid #cbd5e1;
+            color: {{ freelancer.brand_color|default:"#4f46e5" }};
+        }
+        .payment-box {
+            width: 50%;
+            float: left;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 8pt;
+        }
+        .qr-img {
+            height: 70px;
+            width: 70px;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <table>
+            <tr>
+                <td style="vertical-align: top;">
+                    <div class="brand-title">{{ freelancer.display_name }}</div>
+                    {% if freelancer.tax_id %}<div>Tax ID: {{ freelancer.tax_id }}</div>{% endif %}
+                    <div>{{ freelancer.address|linebreaksbr }}</div>
+                </td>
+                <td style="vertical-align: top;" class="inv-meta">
+                    <div class="inv-title">INVOICE</div>
+                    <div style="font-size: 11pt; font-weight: bold; color: #0f172a;">{{ invoice.invoice_number }}</div>
+                    <div>Issue Date: {{ invoice.issue_date|date:"F d, Y" }}</div>
+                    <div>Due Date: {{ invoice.due_date|date:"F d, Y" }}</div>
+                    <div>Status: <strong>{{ invoice.status }}</strong></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="client-box">
+        <div style="color: #64748b; font-size: 7.5pt; text-transform: uppercase;">Billed To:</div>
+        <h3>{{ client.display_title }}</h3>
+        <div>{{ client.name }} &bull; {{ client.email }}</div>
+        {% if client.address %}<div>{{ client.address|linebreaksbr }}</div>{% endif %}
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th class="text-center" style="width: 12%;">Qty</th>
+                <th class="text-right" style="width: 18%;">Unit Price</th>
+                <th class="text-right" style="width: 18%;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in line_items %}
+            <tr>
+                <td><strong>{{ item.description }}</strong></td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">${{ item.unit_price }}</td>
+                <td class="text-right"><strong>${{ item.total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="clear: both; margin-top: 10px;">
+        <div class="payment-box">
+            <div style="font-weight: bold; margin-bottom: 4px;">Payment Instructions</div>
+            {% if freelancer.bank_details %}
+            <div>{{ freelancer.bank_details|linebreaksbr }}</div>
+            {% endif %}
+            {% if freelancer.upi_id %}
+            <div style="margin-top: 4px;"><strong>UPI ID:</strong> {{ freelancer.upi_id }}</div>
+            {% endif %}
+            {% if qr_code_base64 %}
+            <div style="margin-top: 6px;">
+                <img src="{{ qr_code_base64 }}" class="qr-img">
+                <span style="font-size: 7pt; color: #64748b;">Scan to pay instantly via mobile UPI / checkout.</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <table class="totals-table">
+            <tr>
+                <td>Subtotal:</td>
+                <td class="text-right">${{ invoice.subtotal }}</td>
+            </tr>
+            {% if invoice.tax_amount > 0 %}
+            <tr>
+                <td>Tax ({{ invoice.tax_rate }}%):</td>
+                <td class="text-right">${{ invoice.tax_amount }}</td>
+            </tr>
+            {% endif %}
+            {% if invoice.late_fee_amount > 0 %}
+            <tr>
+                <td>Late Fee:</td>
+                <td class="text-right">+${{ invoice.late_fee_amount }}</td>
+            </tr>
+            {% endif %}
+            {% if invoice.discount_amount > 0 %}
+            <tr>
+                <td>Discount:</td>
+                <td class="text-right">-${{ invoice.discount_amount }}</td>
+            </tr>
+            {% endif %}
+            <tr class="grand-total">
+                <td>Total Due:</td>
+                <td class="text-right">${{ invoice.total_amount }}</td>
+            </tr>
+            {% if invoice.amount_paid > 0 %}
+            <tr>
+                <td>Amount Paid:</td>
+                <td class="text-right" style="color: #059669;">${{ invoice.amount_paid }}</td>
+            </tr>
+            <tr style="font-weight: bold; color: #e11d48;">
+                <td>Balance Due:</td>
+                <td class="text-right">${{ invoice.balance_due }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    {% if invoice.notes %}
+    <div style="clear: both; margin-top: 30px; font-size: 8pt; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+        <strong>Notes:</strong> {{ invoice.notes }}
+    </div>
+    {% endif %}
+</body>
+</html>

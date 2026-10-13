@@ -1,0 +1,119 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Checkout - Invoice {{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto space-y-6">
+    <div>
+        <a href="{% url 'invoicing:public' public_token=invoice.public_token %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Invoice</span>
+        </a>
+        <h1 class="text-2xl font-bold font-heading text-slate-900">Secure Online Checkout</h1>
+        <p class="text-xs text-slate-500 mt-1">Settle your invoice balance directly to {{ freelancer.display_name }}.</p>
+    </div>
+
+    <!-- Payment Summary Box -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+                <span class="text-xs font-semibold text-slate-400 uppercase">Payment For</span>
+                <h3 class="text-base font-bold text-slate-900 mt-0.5">Invoice {{ invoice.invoice_number }}</h3>
+                <p class="text-xs text-slate-500">{{ client.display_title }}</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs font-semibold text-slate-400 uppercase">Balance Due</span>
+                <div class="text-2xl font-bold font-heading text-indigo-600 font-mono">
+                    ${{ invoice.balance_due }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Online Payment Methods Card -->
+        <div class="p-5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 space-y-4">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900">Instant Card / NetBanking / UPI Checkout</h4>
+                    <p class="text-xs text-slate-600">256-bit encrypted checkout via Razorpay Gateway (Test Mode).</p>
+                </div>
+            </div>
+
+            <!-- Razorpay Trigger Form -->
+            <form id="razorpayForm" method="post" action="{% url 'payments:verify' invoice_pk=invoice.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="razorpay_order_id" id="rzpOrderId" value="{{ order.order_id }}">
+                <input type="hidden" name="razorpay_payment_id" id="rzpPaymentId" value="">
+                <input type="hidden" name="razorpay_signature" id="rzpSignature" value="">
+
+                <button type="button" id="rzpPayBtn"
+                        class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span>Pay ${{ invoice.balance_due }} with Razorpay</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Wire / Manual Instructions Box -->
+        {% if freelancer.bank_details or freelancer.upi_id %}
+        <div class="space-y-3 pt-2 text-xs">
+            <span class="font-bold text-slate-800 uppercase tracking-wider block">Direct Bank Transfer or UPI</span>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 space-y-1">
+                {% if freelancer.upi_id %}
+                <p><strong>UPI ID:</strong> <span class="font-mono text-slate-900">{{ freelancer.upi_id }}</span></p>
+                {% endif %}
+                {% if freelancer.bank_details %}
+                <p class="whitespace-pre-line">{{ freelancer.bank_details }}</p>
+                {% endif %}
+            </div>
+            <p class="text-[11px] text-slate-400">After manual transfer, notify {{ freelancer.display_name }} to record your receipt.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('rzpPayBtn').onclick = function(e) {
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": "{{ order.amount }}",
+            "currency": "{{ order.currency }}",
+            "name": "{{ freelancer.display_name }}",
+            "description": "Invoice {{ invoice.invoice_number }}",
+            "order_id": "{{ order.order_id }}",
+            "handler": function (response){
+                document.getElementById('rzpOrderId').value = response.razorpay_order_id || '{{ order.order_id }}';
+                document.getElementById('rzpPaymentId').value = response.razorpay_payment_id;
+                document.getElementById('rzpSignature').value = response.razorpay_signature || 'mock_signature_test';
+                document.getElementById('razorpayForm').submit();
+            },
+            "prefill": {
+                "name": "{{ client.name }}",
+                "email": "{{ client.email }}",
+            },
+            "theme": {
+                "color": "{{ freelancer.brand_color|default:'#4F46E5' }}"
+            }
+        };
+
+        // If Razorpay JS loaded cleanly, open it; otherwise fallback to simulated confirmation for test mode
+        if (typeof Razorpay !== 'undefined') {
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){
+                alert("Payment failed: " + response.error.description);
+            });
+            rzp.open();
+        } else {
+            // Simulated payment prompt for testing without internet
+            if (confirm("Simulate successful test payment of ${{ invoice.balance_due }}?")) {
+                document.getElementById('rzpPaymentId').value = 'pay_sim_' + Math.random().toString(36).substring(7);
+                document.getElementById('rzpSignature').value = 'mock_signature_simulated';
+                document.getElementById('razorpayForm').submit();
+            }
+        }
+        e.preventDefault();
+    }
+</script>
+{% endblock %}

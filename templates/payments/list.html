@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Payments & Transactions - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Payments & Settlements</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Track client settlements, verify incoming payments, and generate official payment receipts.</p>
+        </div>
+        <a href="{% url 'payments:record' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-emerald-600/20 transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Record Manual Payment</span>
+        </a>
+    </div>
+
+    <!-- Payments Table -->
+    {% if payments %}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/30">
+                        <th class="py-3 px-5">Receipt #</th>
+                        <th class="py-3 px-5">Invoice #</th>
+                        <th class="py-3 px-5">Client</th>
+                        <th class="py-3 px-5">Payment Method</th>
+                        <th class="py-3 px-5">Date Paid</th>
+                        <th class="py-3 px-5">Amount</th>
+                        <th class="py-3 px-5">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for p in payments %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            {{ p.receipt_number }}
+                        </td>
+                        <td class="py-3.5 px-5 font-mono text-indigo-600 font-semibold">
+                            <a href="{% url 'invoicing:detail' pk=p.invoice.pk %}" class="hover:underline">
+                                {{ p.invoice.invoice_number }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 px-5 font-medium text-slate-800 dark:text-slate-200">
+                            {{ p.invoice.client.display_title }}
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-500">
+                            {{ p.get_method_display }}
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-500">
+                            {{ p.paid_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="py-3.5 px-5 font-mono font-bold text-emerald-600 text-sm">
+                            +${{ p.amount }}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                                {{ p.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center max-w-lg mx-auto">
+        <div class="h-16 w-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="credit-card" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white">No Payments Recorded</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
+            Payments will appear automatically when clients pay online via Razorpay, or when you record bank wire and cash receipts manually.
+        </p>
+        <a href="{% url 'payments:record' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-md transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Record Manual Settlement</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

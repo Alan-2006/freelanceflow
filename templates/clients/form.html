@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'clients:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>Back to Clients</span>
+            </a>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">{{ title }}</h1>
+        </div>
+    </div>
+
+    <form method="post" class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Primary Contact Name *</label>
+                {{ form.name }}
+                {% if form.name.errors %}<p class="mt-1 text-xs text-rose-500">{{ form.name.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Company / Agency Name</label>
+                {{ form.company }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Billing Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}<p class="mt-1 text-xs text-rose-500">{{ form.email.errors.0 }}</p>{% endif %}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Phone (with country code)</label>
+                {{ form.phone }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Billing Address</label>
+            {{ form.address }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Currency</label>
+                {{ form.currency }}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Client Timezone</label>
+                {{ form.timezone }}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Reminder Channel</label>
+                {{ form.preferred_channel }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Tags (comma separated)</label>
+            {{ form.tags }}
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Private Notes</label>
+            {{ form.notes }}
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+            <a href="{% url 'clients:list' %}" class="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900">Cancel</a>
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md transition-all">
+                Save Client
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

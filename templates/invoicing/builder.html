@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}Invoice Builder - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto" x-data="invoiceLiveBuilder()">
+    <!-- Top Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <a href="{% url 'invoicing:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>Back to Invoices</span>
+            </a>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Live Invoice Builder</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Design your invoice on the left; watch the client document update live on the right.</p>
+        </div>
+    </div>
+
+    <!-- Split Screen: Form (Left) & Real-time Live Preview (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Form Controls (7 cols) -->
+        <div class="lg:col-span-6 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <form method="post" id="invoiceForm" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Invoice Meta -->
+                <div class="space-y-4">
+                    <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white uppercase tracking-wider">
+                        1. Client & Invoice Details
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Client *</label>
+                            {{ form.client }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Project (Optional)</label>
+                            {{ form.project }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Invoice Number *</label>
+                            {{ form.invoice_number }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Issue Date *</label>
+                            {{ form.issue_date }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date *</label>
+                            {{ form.due_date }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Line Items -->
+                <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white uppercase tracking-wider">
+                            2. Line Items & Services
+                        </h3>
+                        <button type="button" @click="addItem()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 flex items-center gap-1">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>Add Item</span>
+                        </button>
+                    </div>
+
+                    {% if pre_milestone %}
+                    <div class="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-xs text-indigo-800 dark:text-indigo-300 flex items-center justify-between">
+                        <span>Milestone pre-attached: <strong>{{ pre_milestone.title }}</strong> (${{ pre_milestone.amount }})</span>
+                        <span class="text-[10px] font-semibold bg-indigo-200 dark:bg-indigo-900 px-2 py-0.5 rounded">Linked</span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Items rows -->
+                    <template x-for="(item, index) in items" :key="index">
+                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <input type="text" name="item_desc[]" x-model="item.desc" placeholder="Service description..." 
+                                       class="w-full px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white focus:outline-none">
+                                <button type="button" @click="removeItem(index)" x-show="items.length > 1" class="p-1 text-slate-400 hover:text-rose-500">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] text-slate-400">Quantity / Hours</label>
+                                    <input type="number" step="0.5" name="item_qty[]" x-model="item.qty" 
+                                           class="w-full px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-400">Unit Price ($)</label>
+                                    <input type="number" step="0.01" name="item_price[]" x-model="item.price" 
+                                           class="w-full px-3 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Taxes & Adjustments -->
+                <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white uppercase tracking-wider">
+                        3. Tax & Discounts
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Tax Rate (%)</label>
+                            <input type="number" step="0.01" name="tax_rate" x-model.number="taxRate" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Discount Amount ($)</label>
+                            <input type="number" step="0.01" name="discount_amount" x-model.number="discount" 
+                                   class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Late Fee Rate (%)</label>
+                            {{ form.late_fee_rate }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Notes / Terms</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                    <a href="{% url 'invoicing:list' %}" class="px-4 py-2.5 text-xs text-slate-500">Cancel</a>
+                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                        <span>Generate & Save Invoice</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right: Live Real-time Invoice Sheet Preview (5 cols) -->
+        <div class="lg:col-span-6 sticky top-20">
+            <div class="bg-white rounded-2xl border border-slate-300 shadow-xl p-6 sm:p-8 text-slate-900 space-y-6">
+                <!-- Preview Header Bar -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600 font-mono">LIVE PREVIEW</span>
+                        <h2 class="text-xl font-bold font-heading mt-0.5" x-text="invoiceNumber || 'INV-2026-XXXX'"></h2>
+                    </div>
+                    <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+                        {{ freelancer.display_name|slice:":2"|upper }}
+                    </div>
+                </div>
+
+                <!-- Freelancer & Client info -->
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <span class="text-slate-400 font-semibold uppercase tracking-wider block mb-1">From</span>
+                        <p class="font-bold text-slate-800">{{ freelancer.display_name }}</p>
+                        {% if freelancer.tax_id %}<p class="text-slate-500">Tax ID: {{ freelancer.tax_id }}</p>{% endif %}
+                        <p class="text-slate-500">{{ freelancer.address|linebreaksbr }}</p>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 font-semibold uppercase tracking-wider block mb-1">Billed To</span>
+                        <p class="font-bold text-slate-800">Client Account</p>
+                        <p class="text-slate-500">Terms: Net {{ freelancer.default_payment_terms_days }} Days</p>
+                    </div>
+                </div>
+
+                <!-- Line Items Table -->
+                <div class="pt-2">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-200 text-slate-400 font-semibold uppercase">
+                                <th class="pb-2">Description</th>
+                                <th class="pb-2 text-center">Qty</th>
+                                <th class="pb-2 text-right">Price</th>
+                                <th class="pb-2 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            <template x-for="(item, i) in items" :key="i">
+                                <tr>
+                                    <td class="py-2.5 text-slate-800" x-text="item.desc || 'Service description'"></td>
+                                    <td class="py-2.5 text-center text-slate-600" x-text="item.qty"></td>
+                                    <td class="py-2.5 text-right text-slate-600 font-mono" x-text="'$' + parseFloat(item.price || 0).toFixed(2)"></td>
+                                    <td class="py-2.5 text-right text-slate-900 font-mono font-semibold" x-text="'$' + (parseFloat(item.qty || 0) * parseFloat(item.price || 0)).toFixed(2)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totals Calculation -->
+                <div class="pt-4 border-t border-slate-200 flex justify-end">
+                    <div class="w-56 space-y-1.5 text-xs text-right">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Subtotal:</span>
+                            <span class="font-mono font-semibold" x-text="'$' + subtotal().toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-500" x-show="taxRate > 0">
+                            <span>Tax (<span x-text="taxRate"></span>%):</span>
+                            <span class="font-mono font-semibold" x-text="'$' + taxAmount().toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between text-slate-500" x-show="discount > 0">
+                            <span>Discount:</span>
+                            <span class="font-mono text-emerald-600 font-semibold" x-text="'-$' + discount.toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
+                            <span>Total Due:</span>
+                            <span class="font-mono text-indigo-600" x-text="'$' + grandTotal().toFixed(2)"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Details Banner -->
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold text-slate-800 block">Fast Online Settlement</span>
+                        <span>Supported via Cards, NetBanking, and Instant UPI</span>
+                    </div>
+                    <span class="px-2 py-1 rounded bg-indigo-100 text-indigo-700 font-semibold text-[10px]">Verified Portal</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function invoiceLiveBuilder() {
+    return {
+        invoiceNumber: '{{ form.invoice_number.value|default:"" }}',
+        taxRate: 0,
+        discount: 0,
+        items: [
+            {% if pre_milestone %}
+            { desc: 'Milestone: {{ pre_milestone.title }}', qty: 1, price: {{ pre_milestone.amount }} },
+            {% else %}
+            { desc: 'Initial Milestone / Development Sprint', qty: 1, price: 1500.00 }
+            {% endif %}
+        ],
+        addItem() {
+            this.items.push({ desc: '', qty: 1, price: 0 });
+            this.$nextTick(() => lucide.createIcons());
+        },
+        removeItem(index) {
+            this.items.splice(index, 1);
+        },
+        subtotal() {
+            return this.items.reduce((sum, it) => sum + (parseFloat(it.qty || 0) * parseFloat(it.price || 0)), 0);
+        },
+        taxAmount() {
+            return (this.subtotal() * (parseFloat(this.taxRate || 0))) / 100;
+        },
+        grandTotal() {
+            return Math.max(0, (this.subtotal() + this.taxAmount()) - parseFloat(this.discount || 0));
+        }
+    }
+}
+</script>
+{% endblock %}

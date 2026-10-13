@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}REST API Documentation - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900 dark:text-white flex items-center gap-3">
+                <i data-lucide="code" class="w-7 h-7 text-indigo-500"></i>
+                FreelanceFlow REST API Reference
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                JSON endpoints for programmatic access to clients, projects, milestones, invoices, and payments.
+            </p>
+        </div>
+        <span class="px-3 py-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-mono font-bold">
+            v1.0.0
+        </span>
+    </div>
+
+    <!-- Base Info & Auth -->
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+        <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white uppercase tracking-wider">
+            Authentication & Headers
+        </h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            All API endpoints require session authentication or HTTP Basic Auth. Each freelancer only has access to their own tenant data.
+        </p>
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 font-mono text-xs text-slate-700 dark:text-slate-300">
+            Authorization: Basic &lt;base64_encoded_email:password&gt;<br>
+            Content-Type: application/json
+        </div>
+    </div>
+
+    <!-- Endpoints List -->
+    <div class="space-y-4">
+        <h2 class="text-lg font-bold font-heading text-slate-900 dark:text-white">API Resource Endpoints</h2>
+
+        <!-- Endpoint: Clients -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">POST</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/clients/</span>
+                </div>
+                <span class="text-xs text-slate-400">List and create clients</span>
+            </div>
+            <p class="text-xs text-slate-500">Query parameters: <code class="text-indigo-500 font-mono">?page=1</code></p>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 font-mono text-[11px] text-slate-600 dark:text-slate-300 overflow-x-auto">
+{
+  "name": "Jane Doe",
+  "company": "Design Hub",
+  "email": "jane@designhub.dev",
+  "currency": "USD"
+}
+            </div>
+        </div>
+
+        <!-- Endpoint: Projects -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">POST</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/projects/</span>
+                </div>
+                <span class="text-xs text-slate-400">Manage projects and roadmap progress</span>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800 font-mono text-[11px] text-slate-600 dark:text-slate-300 overflow-x-auto">
+{
+  "client": "&lt;uuid&gt;",
+  "title": "E-Commerce App",
+  "budget": "8000.00",
+  "billing_type": "Fixed"
+}
+            </div>
+        </div>
+
+        <!-- Endpoint: Invoices -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">POST</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/invoices/</span>
+                </div>
+                <span class="text-xs text-slate-400">Query invoices, track status, and line items</span>
+            </div>
+            <p class="text-xs text-slate-500">Provides live <code class="text-indigo-500 font-mono">balance_due</code> and nested line items.</p>
+        </div>
+
+        <!-- Endpoint: Payments -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/payments/</span>
+                </div>
+                <span class="text-xs text-slate-400">Read settled receipts and transactions</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

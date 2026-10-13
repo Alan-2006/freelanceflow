@@ -1,0 +1,344 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} - Project Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto" x-data="{ addMilestoneModal: false, addTaskModal: false }">
+    <!-- Top Breadcrumb & Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <a href="{% url 'projects:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>Back to All Projects</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-bold font-heading text-slate-900 dark:text-white">
+                    {{ project.title }}
+                </h1>
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold
+                    {% if project.status == 'Active' %}bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400
+                    {% elif project.status == 'Completed' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400
+                    {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600{% endif %}">
+                    {{ project.status }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Client: <a href="{% url 'clients:detail' pk=project.client.pk %}" class="font-semibold text-indigo-600 hover:underline">{{ project.client.display_title }}</a>
+                &bull; Model: {{ project.get_billing_type_display }} &bull; Budget: ${{ project.budget }}
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button @click="addTaskModal = true" class="px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Add Task</span>
+            </button>
+            <button @click="addMilestoneModal = true" class="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs flex items-center gap-1.5">
+                <i data-lucide="flag" class="w-3.5 h-3.5"></i>
+                <span>Add Milestone</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Milestone Journey Map / Horizontal Roadmap -->
+    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-indigo-500"></i>
+                Milestone Journey Roadmap
+            </h3>
+            <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                {{ project.progress_percentage }}% Completed
+            </span>
+        </div>
+
+        {% if milestones %}
+        <div class="relative py-4">
+            <!-- Progress Line -->
+            <div class="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-800 -translate-y-1/2 z-0"></div>
+            
+            <div class="relative z-10 flex items-center justify-between overflow-x-auto pb-4 gap-6">
+                {% for m in milestones %}
+                <div class="flex flex-col items-center min-w-[130px] text-center">
+                    <div class="h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs shadow-md transition-all
+                        {% if m.status == 'Approved' or m.status == 'Paid' %}bg-emerald-500 text-white ring-4 ring-emerald-100 dark:ring-emerald-950
+                        {% elif m.status == 'Submitted' %}bg-indigo-600 text-white ring-4 ring-indigo-100 dark:ring-indigo-950 animate-pulse
+                        {% elif m.status == 'In Progress' %}bg-amber-500 text-white ring-4 ring-amber-100 dark:ring-amber-950
+                        {% else %}bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+                        {% if m.status == 'Approved' or m.status == 'Paid' %}
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                        {% else %}
+                            {{ forloop.counter }}
+                        {% endif %}
+                    </div>
+                    <span class="mt-2 text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">{{ m.title }}</span>
+                    <span class="text-[10px] text-slate-400">${{ m.amount }} &bull; {{ m.due_date|date:"M d" }}</span>
+                    <span class="mt-0.5 text-[10px] font-semibold
+                        {% if m.status == 'Approved' %}text-emerald-600
+                        {% elif m.status == 'Submitted' %}text-indigo-500
+                        {% elif m.status == 'Rejected' %}text-rose-500
+                        {% else %}text-slate-400{% endif %}">
+                        {{ m.get_status_display }}
+                    </span>
+                    {% if m.status != 'Approved' and m.status != 'Paid' %}
+                    <a href="{% url 'projects:milestone_submit' pk=m.pk %}" class="mt-1 text-[10px] text-indigo-600 hover:underline font-semibold">
+                        Submit Work &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <p class="text-xs text-slate-400 py-3">No milestones created yet. Add checkpoints to track deliverables and trigger billing.</p>
+        {% endif %}
+    </div>
+
+    <!-- Interactive Task Kanban Board -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="trello" class="w-4 h-4 text-violet-500"></i>
+                Task Kanban Board
+            </h3>
+            <span class="text-xs text-slate-400">Advance tasks across columns or use quick chevron controls</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Column: To Do -->
+            <div class="bg-slate-100/70 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                        <span>To Do</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-[10px] shadow-xs">{{ tasks_todo.count }}</span>
+                </div>
+                <div class="space-y-2 min-h-[160px]">
+                    {% for task in tasks_todo %}
+                        {% include 'projects/partials/kanban_card.html' with task=task %}
+                    {% empty %}
+                        <p class="text-[11px] text-slate-400 text-center py-6">No tasks in backlog</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Column: In Progress -->
+            <div class="bg-slate-100/70 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>In Progress</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-[10px] shadow-xs">{{ tasks_progress.count }}</span>
+                </div>
+                <div class="space-y-2 min-h-[160px]">
+                    {% for task in tasks_progress %}
+                        {% include 'projects/partials/kanban_card.html' with task=task %}
+                    {% empty %}
+                        <p class="text-[11px] text-slate-400 text-center py-6">Nothing currently in flight</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Column: In Review -->
+            <div class="bg-slate-100/70 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span>In Review</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-[10px] shadow-xs">{{ tasks_review.count }}</span>
+                </div>
+                <div class="space-y-2 min-h-[160px]">
+                    {% for task in tasks_review %}
+                        {% include 'projects/partials/kanban_card.html' with task=task %}
+                    {% empty %}
+                        <p class="text-[11px] text-slate-400 text-center py-6">No tasks under review</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Column: Done -->
+            <div class="bg-slate-100/70 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>Done</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-white dark:bg-slate-800 text-[10px] shadow-xs">{{ tasks_done.count }}</span>
+                </div>
+                <div class="space-y-2 min-h-[160px]">
+                    {% for task in tasks_done %}
+                        {% include 'projects/partials/kanban_card.html' with task=task %}
+                    {% empty %}
+                        <p class="text-[11px] text-slate-400 text-center py-6">No completed tasks yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Section: Milestones Breakdown & Activity Feed -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Milestones Details Table -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-indigo-500"></i>
+                Detailed Milestones & Deliverables
+            </h3>
+
+            {% if milestones %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider">
+                            <th class="pb-2">#</th>
+                            <th class="pb-2">Milestone</th>
+                            <th class="pb-2">Due Date</th>
+                            <th class="pb-2">Amount</th>
+                            <th class="pb-2">Status</th>
+                            <th class="pb-2 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for m in milestones %}
+                        <tr>
+                            <td class="py-3 font-semibold text-slate-400">{{ forloop.counter }}</td>
+                            <td class="py-3">
+                                <span class="font-bold text-slate-900 dark:text-white block">{{ m.title }}</span>
+                                {% if m.deliverable_notes %}
+                                <span class="text-[11px] text-slate-500 line-clamp-1">Deliverable: {{ m.deliverable_notes }}</span>
+                                {% endif %}
+                                {% if m.client_feedback %}
+                                <span class="text-[11px] text-rose-500 font-medium block">Feedback: {{ m.client_feedback }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 text-slate-500">{{ m.due_date|date:"M d, Y" }}</td>
+                            <td class="py-3 font-semibold text-slate-900 dark:text-white">${{ m.amount }}</td>
+                            <td class="py-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold
+                                    {% if m.status == 'Approved' or m.status == 'Paid' %}bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400
+                                    {% elif m.status == 'Submitted' %}bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-400
+                                    {% elif m.status == 'Rejected' %}bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400
+                                    {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600{% endif %}">
+                                    {{ m.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="py-3 text-right">
+                                {% if m.status == 'Approved' %}
+                                <a href="{% url 'invoicing:create' %}?milestone={{ m.pk }}" class="text-indigo-600 font-semibold hover:underline">
+                                    Generate Invoice &rarr;
+                                </a>
+                                {% else %}
+                                <a href="{% url 'projects:milestone_submit' pk=m.pk %}" class="text-slate-500 hover:text-indigo-600 font-medium">
+                                    Submit
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-400 text-center py-6">No milestones added yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+            <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-emerald-500"></i>
+                Project Timeline & Audit
+            </h3>
+
+            {% if activities %}
+            <div class="space-y-4">
+                {% for act in activities %}
+                <div class="flex items-start gap-3 text-xs">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div>
+                    <div>
+                        <p class="text-slate-800 dark:text-slate-200 font-medium">{{ act.details }}</p>
+                        <span class="text-[10px] text-slate-400">{{ act.created_at|date:"M d, H:i" }} by {{ act.actor_name }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-400 text-center py-6">No activity recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal: Add Milestone -->
+    <div x-show="addMilestoneModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-4 shadow-xl" @click.away="addMilestoneModal = false">
+            <div class="flex items-center justify-between">
+                <h3 class="font-heading font-bold text-base text-slate-900 dark:text-white">Add New Milestone</h3>
+                <button @click="addMilestoneModal = false" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form method="post" action="{% url 'projects:milestone_create' project_pk=project.pk %}" class="space-y-3">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Title *</label>
+                    {{ milestone_form.title }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                    {{ milestone_form.description }}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Amount ($) *</label>
+                        {{ milestone_form.amount }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Due Date *</label>
+                        {{ milestone_form.due_date }}
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" @click="addMilestoneModal = false" class="px-4 py-2 text-xs text-slate-500">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs">Save Milestone</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Task -->
+    <div x-show="addTaskModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 space-y-4 shadow-xl" @click.away="addTaskModal = false">
+            <div class="flex items-center justify-between">
+                <h3 class="font-heading font-bold text-base text-slate-900 dark:text-white">Create Kanban Task</h3>
+                <button @click="addTaskModal = false" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form method="post" action="{% url 'projects:task_create' project_pk=project.pk %}" class="space-y-3">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Task Title *</label>
+                    {{ task_form.title }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Linked Milestone (Optional)</label>
+                    {{ task_form.milestone }}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Initial Status</label>
+                        {{ task_form.status }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Est. Hours</label>
+                        {{ task_form.estimated_hours }}
+                    </div>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" @click="addTaskModal = false" class="px-4 py-2 text-xs text-slate-500">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs">Add to Board</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

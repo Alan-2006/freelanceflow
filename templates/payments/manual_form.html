@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Payment - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div>
+        <a href="{% url 'payments:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Payments</span>
+        </a>
+        <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Record Manual Settlement</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Record a bank wire, direct UPI, or cash transaction against an outstanding invoice.</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Select Invoice *</label>
+            {{ form.invoice }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Amount Settled ($) *</label>
+                {{ form.amount }}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Payment Method *</label>
+                {{ form.method }}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Settlement Timestamp</label>
+                {{ form.paid_at }}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Proof / Bank Slip (Optional)</label>
+                {{ form.proof_file }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Transaction Notes / Reference</label>
+            {{ form.notes }}
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+            <a href="{% url 'payments:list' %}" class="px-4 py-2 text-sm text-slate-500">Cancel</a>
+            <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>Save Payment & Update Invoice</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+<div class="kanban-card p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all space-y-2"
+     id="task-{{ task.id }}"
+     data-task-id="{{ task.id }}">
+    
+    <div class="flex items-start justify-between gap-2">
+        <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+            {{ task.title }}
+        </h4>
+    </div>
+
+    {% if task.milestone %}
+    <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+        {{ task.milestone.title }}
+    </span>
+    {% endif %}
+
+    <div class="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400">
+        <span class="flex items-center gap-1">
+            <i data-lucide="clock" class="w-3 h-3"></i>
+            {{ task.estimated_hours }}h
+        </span>
+
+        <!-- HTMX Move Buttons -->
+        <div class="flex items-center gap-1">
+            {% if task.status == 'IN_PROGRESS' or task.status == 'REVIEW' or task.status == 'DONE' %}
+            <button hx-post="{% url 'projects:task_update_status' task_pk=task.pk %}"
+                    hx-vals='{"status": "{% if task.status == "DONE" %}REVIEW{% elif task.status == "REVIEW" %}IN_PROGRESS{% else %}TODO{% endif %}"}'
+                    hx-target="#task-{{ task.id }}"
+                    hx-swap="outerHTML"
+                    title="Move back"
+                    class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i data-lucide="chevron-left" class="w-3 h-3"></i>
+            </button>
+            {% endif %}
+
+            {% if task.status == 'TODO' or task.status == 'IN_PROGRESS' or task.status == 'REVIEW' %}
+            <button hx-post="{% url 'projects:task_update_status' task_pk=task.pk %}"
+                    hx-vals='{"status": "{% if task.status == "TODO" %}IN_PROGRESS{% elif task.status == "IN_PROGRESS" %}REVIEW{% else %}DONE{% endif %}"}'
+                    hx-target="#task-{{ task.id }}"
+                    hx-swap="outerHTML"
+                    title="Advance to next column"
+                    class="p-1 hover:text-indigo-600 dark:hover:text-indigo-400">
+                <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

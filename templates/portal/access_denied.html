@@ -1,0 +1,18 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Access Notice - Client Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto py-16 text-center space-y-4">
+    <div class="h-16 w-16 rounded-2xl bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+        <i data-lucide="shield-alert" class="w-8 h-8"></i>
+    </div>
+    <h2 class="text-xl font-bold font-heading text-slate-900">Portal Access Notice</h2>
+    <p class="text-sm text-slate-500 leading-relaxed">
+        {{ message|default:"Your client portal access session is invalid or has expired." }}
+    </p>
+    <div class="pt-4">
+        <p class="text-xs text-slate-400">Please reach out to your freelancer to request an updated magic link.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Projects & Tasks - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Projects Workspace</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Track client deliverables, milestone roadmaps, and task Kanban boards.</p>
+        </div>
+        <a href="{% url 'projects:create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>New Project Wizard</span>
+        </a>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto text-sm">
+        <a href="{% url 'projects:list' %}" 
+           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == 'All' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            All Projects
+        </a>
+        {% for val, label in statuses %}
+        <a href="?status={{ val }}" 
+           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == val %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Projects Grid -->
+    {% if projects %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for project in projects %}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+            <div>
+                <!-- Top: Client Name & Status Badge -->
+                <div class="flex items-center justify-between gap-2 text-xs">
+                    <span class="font-semibold text-indigo-600 dark:text-indigo-400 truncate">
+                        {{ project.client.display_title }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full font-medium
+                        {% if project.status == 'Active' %}bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400
+                        {% elif project.status == 'Completed' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400
+                        {% elif project.status == 'On Hold' %}bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400
+                        {% else %}bg-slate-100 dark:bg-slate-800 text-slate-500{% endif %}">
+                        {{ project.status }}
+                    </span>
+                </div>
+
+                <!-- Title & Description -->
+                <h3 class="mt-2 text-lg font-bold font-heading text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                    <a href="{% url 'projects:detail' pk=project.pk %}">
+                        {{ project.title }}
+                    </a>
+                </h3>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                    {{ project.description|default:"No scope summary provided." }}
+                </p>
+
+                <!-- Progress Bar -->
+                <div class="mt-5 space-y-1.5">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-400">Milestone Progress</span>
+                        <span class="text-indigo-600 dark:text-indigo-400">{{ project.progress_percentage }}%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                        <div class="h-full bg-indigo-600 rounded-full transition-all duration-500" style="width: {{ project.progress_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Milestones / Budget Meta -->
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                    <div class="flex items-center gap-1.5">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span>{{ project.milestones.count }} Milestones</span>
+                    </div>
+                    <div class="flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
+                        <span>Budget: ${{ project.budget }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer: Link to Kanban & Timeline -->
+            <div class="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                <span class="text-[11px] text-slate-400">Due: {{ project.end_date|default:"Ongoing" }}</span>
+                <a href="{% url 'projects:detail' pk=project.pk %}" class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+                    <span>Open Board & Timeline</span>
+                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Smart Empty State -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center max-w-lg mx-auto">
+        <div class="h-16 w-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mx-auto flex items-center justify-center mb-4">
+            <i data-lucide="kanban-square" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white">No Projects Active</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">
+            Launch a new project with our 4-step wizard or clone ready-made milestones from Web Development or Branding templates.
+        </p>
+        <a href="{% url 'projects:create' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Launch First Project</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
