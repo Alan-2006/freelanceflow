@@ -1,70 +1,426 @@
-/* Custom FreelanceFlow Aesthetics & Glassmorphism */
+/* ==========================================================================
+   FREELANCEFLOW: NEO-BRUTAL GLASS DESIGN SYSTEM
+   Fusion of Cyber-Glassmorphism and Neo-Brutalist Tactile Architecture
+   ========================================================================== */
+
 :root {
   --primary-accent: #6366f1;
+  --secondary-accent: #8b5cf6;
+  --cyan-accent: #06b6d4;
+  --emerald-accent: #10b981;
+  --rose-accent: #f43f5e;
+  --amber-accent: #f59e0b;
+
+  /* Light Theme Brutal Tokens */
+  --brutal-border: #0f172a;
+  --brutal-border-width: 2px;
+  --brutal-shadow: 4px 4px 0px #0f172a;
+  --brutal-shadow-hover: 7px 7px 0px #0f172a;
+  --brutal-shadow-sm: 2px 2px 0px #0f172a;
+  --brutal-shadow-lg: 8px 8px 0px #0f172a;
+  --brutal-shadow-active: 1px 1px 0px #0f172a;
+  
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg-hover: rgba(255, 255, 255, 0.92);
+  --glass-blur: 20px;
+  --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 0 rgba(0, 0, 0, 0.05);
+  --grid-dot-color: rgba(15, 23, 42, 0.07);
 }
 
-/* Glassmorphism effects */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+.dark {
+  /* Dark Theme Cyber-Brutal Tokens */
+  --brutal-border: rgba(255, 255, 255, 0.16);
+  --brutal-border-accent: #6366f1;
+  --brutal-shadow: 4px 4px 0px #6366f1;
+  --brutal-shadow-hover: 6px 6px 0px #818cf8;
+  --brutal-shadow-sm: 2px 2px 0px #6366f1;
+  --brutal-shadow-lg: 8px 8px 0px #4f46e5;
+  --brutal-shadow-active: 1px 1px 0px #6366f1;
+
+  --glass-bg: rgba(15, 23, 42, 0.78);
+  --glass-bg-hover: rgba(30, 41, 59, 0.88);
+  --glass-blur: 22px;
+  --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+  --grid-dot-color: rgba(99, 102, 241, 0.1);
+}
+
+/* ==========================================================================
+   IMMERSIVE AMBIENT ENVIRONMENT & CYBER-GRID
+   ========================================================================== */
+
+/* Cyber-Brutal Dot Grid Background */
+.bg-cyber-grid {
+  background-image: radial-gradient(circle, var(--grid-dot-color) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* Ambient Floating Glowing Orbs */
+.ambient-glow-wrapper {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.45;
+  will-change: transform;
+}
+
+.dark .ambient-orb {
+  opacity: 0.32;
+  filter: blur(100px);
+}
+
+.ambient-orb-1 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #6366f1 0%, #4338ca 70%);
+  top: -100px;
+  left: -80px;
+  animation: orb-drift-1 22s ease-in-out infinite alternate;
+}
+
+.ambient-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
+  bottom: -150px;
+  right: -100px;
+  animation: orb-drift-2 26s ease-in-out infinite alternate;
+}
+
+.ambient-orb-3 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #06b6d4 0%, #0284c7 70%);
+  top: 35%;
+  right: 25%;
+  animation: orb-drift-3 18s ease-in-out infinite alternate;
+}
+
+@keyframes orb-drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(120px, 80px) scale(1.15); }
+  100% { transform: translate(60px, 160px) scale(0.95); }
+}
+
+@keyframes orb-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-100px, -90px) scale(1.1); }
+  100% { transform: translate(-40px, -180px) scale(0.9); }
+}
+
+@keyframes orb-drift-3 {
+  0% { transform: translate(0, 0) scale(0.9); }
+  50% { transform: translate(-80px, 60px) scale(1.2); }
+  100% { transform: translate(100px, -40px) scale(1); }
+}
+
+/* ==========================================================================
+   NEO-BRUTAL GLASS PANELS & CARDS
+   ========================================================================== */
+
+.brutal-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: var(--brutal-border-width) solid var(--brutal-border);
+  box-shadow: var(--brutal-shadow), var(--glass-specular);
+  border-radius: 1rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .brutal-glass {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Interactive Brutal Glass Cards */
+.brutal-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: var(--brutal-border-width) solid var(--brutal-border);
+  box-shadow: var(--brutal-shadow), var(--glass-specular);
+  border-radius: 1rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .brutal-card {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.brutal-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--brutal-shadow-hover), var(--glass-specular);
+}
+
+/* Chromatic Brutal Accents */
+.brutal-card-indigo {
+  box-shadow: 4px 4px 0px #6366f1, var(--glass-specular);
+}
+.brutal-card-indigo:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #6366f1, var(--glass-specular);
+}
+
+.brutal-card-emerald {
+  box-shadow: 4px 4px 0px #10b981, var(--glass-specular);
+}
+.brutal-card-emerald:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #10b981, var(--glass-specular);
+}
+
+.brutal-card-rose {
+  box-shadow: 4px 4px 0px #f43f5e, var(--glass-specular);
+}
+.brutal-card-rose:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #f43f5e, var(--glass-specular);
+}
+
+.brutal-card-violet {
+  box-shadow: 4px 4px 0px #8b5cf6, var(--glass-specular);
+}
+.brutal-card-violet:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #8b5cf6, var(--glass-specular);
+}
+
+.brutal-card-cyan {
+  box-shadow: 4px 4px 0px #06b6d4, var(--glass-specular);
+}
+.brutal-card-cyan:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0px #06b6d4, var(--glass-specular);
+}
+
+/* ==========================================================================
+   NEO-BRUTAL BUTTONS & CONTROLS
+   ========================================================================== */
+
+.brutal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-radius: 0.75rem;
+  border: var(--brutal-border-width) solid var(--brutal-border);
+  box-shadow: var(--brutal-shadow);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  cursor: pointer;
+}
+
+.brutal-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--brutal-shadow-hover);
+}
+
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--brutal-shadow-active);
+}
+
+/* Primary Brutal Button (Neon Indigo-Violet Gradient) */
+.brutal-btn-primary {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #ffffff;
+  border-color: #0f172a;
+  box-shadow: 4px 4px 0px #0f172a;
+}
+.dark .brutal-btn-primary {
+  border-color: #a5b4fc;
+  box-shadow: 4px 4px 0px #4f46e5;
+}
+.brutal-btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+  box-shadow: 6px 6px 0px #0f172a;
+}
+.dark .brutal-btn-primary:hover {
+  box-shadow: 6px 6px 0px #818cf8;
+}
+
+/* Secondary / Glass Button */
+.brutal-btn-secondary {
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #0f172a;
+  border-color: var(--brutal-border);
+  box-shadow: var(--brutal-shadow-sm);
+}
+.dark .brutal-btn-secondary {
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 2px 2px 0px #6366f1;
+}
+.brutal-btn-secondary:hover {
+  background: var(--glass-bg-hover);
+  box-shadow: var(--brutal-shadow);
 }
 
-.dark .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* ==========================================================================
+   NEO-BRUTAL INPUTS & FORMS
+   ========================================================================== */
+
+.brutal-input {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: var(--brutal-border-width) solid var(--brutal-border);
+  box-shadow: var(--brutal-shadow-sm);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  color: #0f172a;
 }
 
-/* Subtle smooth gradient backgrounds */
-.bg-subtle-glow {
-  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
+.dark .brutal-input {
+  background: rgba(15, 23, 42, 0.7);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #f8fafc;
+  box-shadow: 2px 2px 0px rgba(99, 102, 241, 0.5);
 }
 
-.dark .bg-subtle-glow {
-  background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.12) 0%, transparent 40%);
+.brutal-input:focus {
+  outline: none;
+  transform: translate(-1px, -1px);
+  border-color: #6366f1;
+  box-shadow: 4px 4px 0px #6366f1;
 }
 
-/* Custom Scrollbars */
+.dark .brutal-input:focus {
+  border-color: #818cf8;
+  box-shadow: 4px 4px 0px #818cf8;
+}
+
+/* ==========================================================================
+   NEO-BRUTAL BADGES & TAGS
+   ========================================================================== */
+
+.brutal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid #0f172a;
+  box-shadow: 2px 2px 0px #0f172a;
+}
+
+.dark .brutal-badge {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
+}
+
+.brutal-badge-emerald {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #059669;
+  box-shadow: 2px 2px 0px #059669;
+}
+.dark .brutal-badge-emerald {
+  background: rgba(6, 78, 59, 0.4);
+  color: #34d399;
+  border-color: #10b981;
+  box-shadow: 2px 2px 0px #10b981;
+}
+
+.brutal-badge-indigo {
+  background: #eef2ff;
+  color: #3730a3;
+  border-color: #4f46e5;
+  box-shadow: 2px 2px 0px #4f46e5;
+}
+.dark .brutal-badge-indigo {
+  background: rgba(49, 46, 129, 0.4);
+  color: #a5b4fc;
+  border-color: #6366f1;
+  box-shadow: 2px 2px 0px #6366f1;
+}
+
+.brutal-badge-rose {
+  background: #fff1f2;
+  color: #9f1239;
+  border-color: #e11d48;
+  box-shadow: 2px 2px 0px #e11d48;
+}
+.dark .brutal-badge-rose {
+  background: rgba(136, 19, 55, 0.4);
+  color: #fda4af;
+  border-color: #f43f5e;
+  box-shadow: 2px 2px 0px #f43f5e;
+}
+
+.brutal-badge-amber {
+  background: #fffbeb;
+  color: #92400e;
+  border-color: #d97706;
+  box-shadow: 2px 2px 0px #d97706;
+}
+.dark .brutal-badge-amber {
+  background: rgba(120, 53, 15, 0.4);
+  color: #fcd34d;
+  border-color: #f59e0b;
+  box-shadow: 2px 2px 0px #f59e0b;
+}
+
+/* ==========================================================================
+   CUSTOM SCROLLBAR & MICRO-ANIMATIONS
+   ========================================================================== */
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.4);
-  border-radius: 9999px;
+  background: #6366f1;
+  border: 1.5px solid var(--brutal-border);
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.7);
+  background: #4f46e5;
 }
 
-/* Micro-animations */
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.85; transform: scale(1.02); }
+/* Luminous Neon Pulse */
+@keyframes neon-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4), var(--brutal-shadow);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.7), var(--brutal-shadow);
+  }
 }
 
-.animate-pulse-subtle {
-  animation: pulse-subtle 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-neon-pulse {
+  animation: neon-pulse 3s infinite ease-in-out;
 }
 
 /* Print Friendly Invoices */
 @media print {
-  .no-print {
+  .no-print, .ambient-glow-wrapper {
     display: none !important;
   }
   body {
     background: #ffffff !important;
     color: #000000 !important;
   }
-  .print-only {
-    display: block !important;
+  .brutal-glass, .brutal-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background: #fff !important;
   }
 }

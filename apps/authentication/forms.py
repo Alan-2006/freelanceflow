@@ -14,26 +14,26 @@ CURRENCY_CHOICES = [
 
 class FreelancerSignUpForm(forms.ModelForm):
     first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none',
         'placeholder': 'First Name'
     }))
     last_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none',
         'placeholder': 'Last Name'
     }))
     business_name = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none',
         'placeholder': 'Business / Studio Name (optional)'
     }))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none',
         'placeholder': 'alex@studio.com'
     }))
     currency = forms.ChoiceField(choices=CURRENCY_CHOICES, initial='USD', widget=forms.Select(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none'
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none'
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-2.5 rounded-xl font-medium focus:outline-none',
         'placeholder': '••••••••'
     }))
 
@@ -65,11 +65,11 @@ class FreelancerSignUpForm(forms.ModelForm):
 
 class LoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-3 rounded-xl font-medium focus:outline-none',
         'placeholder': 'you@example.com'
     }))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none',
+        'class': 'brutal-input w-full px-4 py-3 rounded-xl font-medium focus:outline-none',
         'placeholder': '••••••••'
     }))
 

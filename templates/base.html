@@ -62,100 +62,108 @@
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white"
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white relative bg-cyber-grid"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
       x-data="globalApp()"
       @keydown.window="handleGlobalKeydown($event)">
 
-    <!-- HTMX CSRF setup -->
-    <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <!-- Ambient Floating Aurora Orbs (Immersive Glow) -->
+    <div class="ambient-glow-wrapper no-print">
+        <div class="ambient-orb ambient-orb-1"></div>
+        <div class="ambient-orb ambient-orb-2"></div>
+        <div class="ambient-orb ambient-orb-3"></div>
+    </div>
 
     <!-- App Wrapper -->
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative z-10">
 
         {% if request.user.is_authenticated and request.user.is_freelancer %}
         <!-- Sidebar Navigation (Desktop) -->
-        <aside class="hidden lg:flex lg:flex-col w-64 border-r border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-30 transition-all duration-300">
+        <aside class="hidden lg:flex lg:flex-col w-68 brutal-glass !rounded-none !border-y-0 !border-l-0 !border-r-[2px] z-30 transition-all duration-300">
             <!-- Brand Logo -->
-            <div class="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800/80">
-                <a href="{% url 'analytics:dashboard' %}" class="flex items-center gap-3">
-                    <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <div class="h-16 flex items-center px-6 border-b-2 border-slate-900/10 dark:border-white/10">
+                <a href="{% url 'analytics:dashboard' %}" class="flex items-center gap-3 group">
+                    <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 flex items-center justify-center text-white border-2 border-slate-900 dark:border-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] group-hover:scale-105 transition-all">
                         <i data-lucide="zap" class="w-5 h-5"></i>
                     </div>
-                    <span class="font-heading font-bold text-xl tracking-tight bg-gradient-to-r from-indigo-600 to-violet-500 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">
-                        FreelanceFlow
-                    </span>
+                    <div>
+                        <span class="font-heading font-extrabold text-xl tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-cyan-500 dark:from-indigo-400 dark:via-violet-400 dark:to-cyan-400 bg-clip-text text-transparent">
+                            FreelanceFlow
+                        </span>
+                        <span class="block text-[9px] font-mono uppercase tracking-widest text-slate-400 font-bold">CYBER-PRO</span>
+                    </div>
                 </a>
             </div>
 
             <!-- Navigation Links -->
-            <div class="flex-1 overflow-y-auto px-4 py-6 space-y-1.5">
-                <div class="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Workspace
+            <div class="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+                <div class="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 font-heading">
+                    // Workspace
                 </div>
 
                 <a href="{% url 'analytics:dashboard' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'analytics' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'analytics' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                     Dashboard
                 </a>
 
                 <a href="{% url 'clients:list' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'clients' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'clients' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="users" class="w-5 h-5"></i>
                     Clients
                 </a>
 
                 <a href="{% url 'projects:list' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'projects' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'projects' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="kanban-square" class="w-5 h-5"></i>
                     Projects & Tasks
                 </a>
 
                 <a href="{% url 'invoicing:list' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'invoicing' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'invoicing' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="file-text" class="w-5 h-5"></i>
                     Invoices
                 </a>
 
                 <a href="{% url 'payments:list' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'payments' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'payments' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="credit-card" class="w-5 h-5"></i>
                     Payments
                 </a>
 
                 <a href="{% url 'reminders:dashboard' %}" 
-                   class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.app_name == 'reminders' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'reminders' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <div class="flex items-center gap-3">
                         <i data-lucide="bell-ring" class="w-5 h-5"></i>
                         <span>Reminders</span>
                     </div>
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
-                        Auto
+                    <span class="brutal-badge brutal-badge-emerald text-[9px] py-0.5 px-1.5">
+                        AUTO
                     </span>
                 </a>
 
-                <div class="pt-5 px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Configuration
+                <div class="pt-6 px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-slate-500 font-heading">
+                    // Settings
                 </div>
 
                 <a href="{% url 'authentication:profile' %}" 
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {% if request.resolver_match.url_name == 'profile' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.url_name == 'profile' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="settings" class="w-5 h-5"></i>
                     Branding & Settings
                 </a>
             </div>
 
             <!-- User Footer Profile -->
-            <div class="p-4 border-t border-slate-200 dark:border-slate-800/80">
-                <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-100/60 dark:bg-slate-800/50">
-                    <div class="h-10 w-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold font-heading text-sm">
+            <div class="p-4 border-t-2 border-slate-900/10 dark:border-white/10">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl brutal-glass !shadow-none border-2 border-slate-900/20 dark:border-white/20">
+                    <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center font-bold font-heading text-sm border-2 border-slate-900 dark:border-white/30 shadow-[2px_2px_0px_#0f172a]">
                         {{ request.user.first_name|default:request.user.username|make_list|first|upper }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-slate-900 dark:text-white truncate">
+                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate">
                             {{ freelancer_profile.display_name }}
                         </p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <p class="text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate">
                             {{ request.user.email }}
                         </p>
                     </div>
@@ -168,24 +176,24 @@
         {% endif %}
 
         <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
             
             {% if request.user.is_authenticated and request.user.is_freelancer %}
             <!-- Top Navbar -->
-            <header class="h-16 border-b border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between z-20">
+            <header class="h-16 brutal-glass !rounded-none !border-x-0 !border-t-0 !border-b-2 px-4 sm:px-6 flex items-center justify-between z-20">
                 
                 <!-- Left: Mobile Menu Toggle & Command Palette trigger -->
                 <div class="flex items-center gap-3">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 text-slate-700 dark:text-slate-200 hover:text-indigo-600">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
 
                     <!-- Command Palette Button (Ctrl+K) -->
                     <button @click="paletteOpen = true" 
-                            class="flex items-center gap-2.5 px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-lg transition-colors">
-                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
-                        <span class="hidden sm:inline">Search & Actions...</span>
-                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-900 rounded border border-slate-300 dark:border-slate-700 shadow-xs">Ctrl K</kbd>
+                            class="flex items-center gap-2.5 px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 brutal-glass !rounded-lg border-2 border-slate-900/40 dark:border-white/20 hover:-translate-y-0.5 transition-transform cursor-pointer">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-indigo-500"></i>
+                        <span class="hidden sm:inline font-semibold">Search & Actions...</span>
+                        <kbd class="px-1.5 py-0.5 text-[10px] font-mono bg-white dark:bg-slate-900 rounded border border-slate-900/30 dark:border-white/30 font-bold">Ctrl K</kbd>
                     </button>
                 </div>
 
@@ -193,10 +201,10 @@
                 <div class="flex items-center gap-3 sm:gap-4">
                     
                     <!-- Persistent Timer Widget -->
-                    <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/70 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/50"
+                    <div class="flex items-center gap-2 brutal-glass !rounded-xl px-3 py-1.5 border-2 border-slate-900 dark:border-slate-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]"
                          x-data="persistentTimer()">
-                        <div class="w-2 h-2 rounded-full" :class="isRunning ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'"></div>
-                        <span class="font-mono text-xs font-semibold text-slate-700 dark:text-slate-200" x-text="formatTime(seconds)">00:00:00</span>
+                        <div class="w-2.5 h-2.5 rounded-full" :class="isRunning ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'"></div>
+                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100" x-text="formatTime(seconds)">00:00:00</span>
                         <button @click="toggleTimer()" 
                                 class="p-1 rounded-md transition-colors"
                                 :class="isRunning ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40' : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'"
@@ -213,15 +221,15 @@
                     <form method="post" action="{% url 'authentication:toggle_theme' %}" class="inline">
                         {% csrf_token %}
                         <button type="submit" 
-                                class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 transition-colors"
+                                class="p-2 rounded-xl brutal-glass border-2 border-slate-900 dark:border-white/20 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1] hover:-translate-y-0.5 active:translate-y-0.5 transition-transform"
                                 title="Toggle Theme">
-                            <span class="dark:hidden"><i data-lucide="moon" class="w-4 h-4"></i></span>
+                            <span class="dark:hidden"><i data-lucide="moon" class="w-4 h-4 text-slate-800"></i></span>
                             <span class="hidden dark:inline"><i data-lucide="sun" class="w-4 h-4 text-amber-400"></i></span>
                         </button>
                     </form>
 
                     <!-- Quick Action Button -->
-                    <a href="{% url 'invoicing:create' %}" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs shadow-indigo-600/30 transition-all">
+                    <a href="{% url 'invoicing:create' %}" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-xs brutal-btn brutal-btn-primary">
                         <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                         <span>New Invoice</span>
                     </a>
@@ -230,25 +238,25 @@
             {% endif %}
 
             <!-- Main Scrollable Body -->
-            <main class="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 lg:p-8 bg-subtle-glow">
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 relative z-10">
                 
                 <!-- Django Messages / Flash Alerts -->
                 {% if messages %}
-                <div class="mb-6 space-y-2 max-w-4xl mx-auto">
+                <div class="mb-6 space-y-3 max-w-4xl mx-auto">
                     {% for message in messages %}
                     <div x-data="{ show: true }" x-show="show" x-transition
-                         class="flex items-center justify-between p-4 rounded-xl text-sm font-medium shadow-xs border
-                         {% if message.tags == 'success' %}bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800
-                         {% elif message.tags == 'error' %}bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-800
-                         {% elif message.tags == 'warning' %}bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800
-                         {% else %}bg-indigo-50 dark:bg-indigo-950/50 text-indigo-800 dark:text-indigo-200 border-indigo-200 dark:border-indigo-800{% endif %}">
+                         class="brutal-glass flex items-center justify-between p-4 text-sm font-bold border-2
+                         {% if message.tags == 'success' %}brutal-card-emerald text-emerald-900 dark:text-emerald-200 border-emerald-600
+                         {% elif message.tags == 'error' %}brutal-card-rose text-rose-900 dark:text-rose-200 border-rose-600
+                         {% elif message.tags == 'warning' %}border-amber-600 text-amber-900 dark:text-amber-200 shadow-[4px_4px_0px_#f59e0b]
+                         {% else %}brutal-card-indigo text-indigo-900 dark:text-indigo-200 border-indigo-600{% endif %}">
                         <div class="flex items-center gap-3">
                             {% if message.tags == 'success' %}<i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500"></i>
                             {% elif message.tags == 'error' %}<i data-lucide="alert-octagon" class="w-5 h-5 text-rose-500"></i>
                             {% else %}<i data-lucide="info" class="w-5 h-5 text-indigo-500"></i>{% endif %}
                             <span>{{ message }}</span>
                         </div>
-                        <button @click="show = false" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                        <button @click="show = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 p-1">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>

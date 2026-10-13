@@ -10,21 +10,21 @@
             <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Invoices & Billing</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Generate professional milestone-linked invoices, monitor payment statuses, and trigger automated reminders.</p>
         </div>
-        <a href="{% url 'invoicing:create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+        <a href="{% url 'invoicing:create' %}" class="brutal-btn brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-2">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>Create Invoice</span>
         </a>
     </div>
 
     <!-- Status Filter Tabs -->
-    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 overflow-x-auto text-sm">
+    <div class="flex items-center gap-2 border-b-2 border-slate-900/10 dark:border-white/10 pb-3 overflow-x-auto text-sm">
         <a href="{% url 'invoicing:list' %}" 
-           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == 'All' %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+           class="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all {% if current_status == 'All' %}brutal-glass border-2 border-slate-900 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
             All Invoices
         </a>
         {% for val, label in statuses %}
         <a href="?status={{ val }}" 
-           class="px-3.5 py-1.5 rounded-lg font-medium transition-all {% if current_status == val %}bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+           class="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all {% if current_status == val %}brutal-glass border-2 border-slate-900 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
             {{ label }}
         </a>
         {% endfor %}
@@ -32,11 +32,11 @@
 
     <!-- Invoices Table -->
     {% if invoices %}
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div class="brutal-card p-0 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#6366f1] overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>
-                    <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/30">
+                    <tr class="border-b-2 border-slate-900/15 dark:border-white/15 text-slate-500 dark:text-slate-300 font-extrabold uppercase font-heading tracking-wider bg-slate-100/60 dark:bg-slate-800/60">
                         <th class="py-3 px-5">Invoice #</th>
                         <th class="py-3 px-5">Client</th>
                         <th class="py-3 px-5">Issue Date</th>

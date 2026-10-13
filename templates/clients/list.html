@@ -10,30 +10,30 @@
             <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Clients Directory</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Manage client relationships, payment terms, and monitor payment reliability scores.</p>
         </div>
-        <a href="{% url 'clients:create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+        <a href="{% url 'clients:create' %}" class="brutal-btn brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-2">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             <span>Add New Client</span>
         </a>
     </div>
 
     <!-- Filters, Search & Sort Bar -->
-    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+    <div class="brutal-card p-4 border-2 border-slate-900 dark:border-white/20 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#6366f1] flex flex-col md:flex-row items-center justify-between gap-4">
         <!-- Search Input -->
         <form method="get" class="w-full md:w-96 relative">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
             <input type="text" name="q" value="{{ search_query }}" 
                    placeholder="Search by name, company, email, tag..."
-                   class="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                   class="brutal-input w-full pl-10 pr-4 py-2 text-sm focus:outline-none">
         </form>
 
         <!-- Tags & Sort Controls -->
         <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             {% if all_tags %}
             <div class="flex items-center gap-1.5 text-xs">
-                <span class="text-slate-400">Tag:</span>
-                <a href="{% url 'clients:list' %}" class="px-2.5 py-1 rounded-lg border {% if not tag_filter %}bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400{% endif %}">All</a>
+                <span class="text-slate-400 font-bold">// Tag:</span>
+                <a href="{% url 'clients:list' %}" class="px-2.5 py-1 rounded-lg border-2 {% if not tag_filter %}border-slate-900 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold shadow-[2px_2px_0px_#0f172a]{% else %}border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400{% endif %}">All</a>
                 {% for t in all_tags %}
-                <a href="?tag={{ t }}{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border {% if tag_filter == t %}bg-indigo-50 dark:bg-indigo-950 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 font-semibold{% else %}border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+                <a href="?tag={{ t }}{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border-2 {% if tag_filter == t %}border-slate-900 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold shadow-[2px_2px_0px_#0f172a]{% else %}border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400{% endif %}">
                     {{ t }}
                 </a>
                 {% endfor %}
@@ -41,10 +41,10 @@
             {% endif %}
 
             <div class="flex items-center gap-1.5 text-xs ml-auto">
-                <span class="text-slate-400">Sort:</span>
-                <a href="?sort=name{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border {% if sort_by == 'name' %}bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white{% else %}text-slate-500{% endif %}">Name</a>
-                <a href="?sort=reliability{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border {% if sort_by == 'reliability' %}bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white{% else %}text-slate-500{% endif %}">Reliability</a>
-                <a href="?sort=recent{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border {% if sort_by == 'recent' %}bg-slate-100 dark:bg-slate-800 font-semibold text-slate-900 dark:text-white{% else %}text-slate-500{% endif %}">Recent</a>
+                <span class="text-slate-400 font-bold">// Sort:</span>
+                <a href="?sort=name{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border-2 {% if sort_by == 'name' %}border-slate-900 dark:border-white/30 bg-slate-200 dark:bg-slate-800 font-bold text-slate-900 dark:text-white shadow-[2px_2px_0px_#0f172a]{% else %}border-slate-300 dark:border-slate-700 text-slate-500{% endif %}">Name</a>
+                <a href="?sort=reliability{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border-2 {% if sort_by == 'reliability' %}border-slate-900 dark:border-white/30 bg-slate-200 dark:bg-slate-800 font-bold text-slate-900 dark:text-white shadow-[2px_2px_0px_#0f172a]{% else %}border-slate-300 dark:border-slate-700 text-slate-500{% endif %}">Reliability</a>
+                <a href="?sort=recent{% if search_query %}&q={{ search_query }}{% endif %}" class="px-2.5 py-1 rounded-lg border-2 {% if sort_by == 'recent' %}border-slate-900 dark:border-white/30 bg-slate-200 dark:bg-slate-800 font-bold text-slate-900 dark:text-white shadow-[2px_2px_0px_#0f172a]{% else %}border-slate-300 dark:border-slate-700 text-slate-500{% endif %}">Recent</a>
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@
     {% if clients %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {% for client in clients %}
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+        <div class="brutal-card p-5 border-2 border-slate-900/40 dark:border-white/20 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#8b5cf6] flex flex-col justify-between group">
             <div>
                 <!-- Top Row: Name & Reliability Badge -->
                 <div class="flex items-start justify-between gap-3">
