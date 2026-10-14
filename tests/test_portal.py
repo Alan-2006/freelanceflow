@@ -76,6 +76,8 @@ class TestClientPortal:
         milestone.refresh_from_db()
         assert milestone.status == MilestoneStatus.APPROVED
         assert milestone.approved_at is not None
+        assert milestone.feedbacks.count() >= 1
+        assert milestone.invoice_lines.exists()
 
     def test_client_milestone_changes_requested(self, client, auth_client):
         _, user = auth_client

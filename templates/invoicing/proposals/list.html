@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Proposals & Estimates - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Proposals & Estimates</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Send client-facing quotes and scope estimates with 1-click conversion to active projects and milestone invoices.</p>
+        </div>
+        <a href="{% url 'invoicing:proposal_create' %}" class="brutal-btn brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>New Proposal</span>
+        </a>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="flex items-center gap-2 border-b-2 border-slate-900/10 dark:border-white/10 pb-3 overflow-x-auto text-sm">
+        <a href="{% url 'invoicing:proposal_list' %}" 
+           class="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all {% if current_status == 'All' %}brutal-glass border-2 border-slate-900 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            All Proposals
+        </a>
+        {% for val, label in statuses %}
+        <a href="?status={{ val }}" 
+           class="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all {% if current_status == val %}brutal-glass border-2 border-slate-900 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]{% else %}text-slate-500 hover:text-slate-900 dark:hover:text-white{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Proposals Table -->
+    {% if proposals %}
+    <div class="brutal-card p-0 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#6366f1] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b-2 border-slate-900/15 dark:border-white/15 text-slate-500 dark:text-slate-300 font-extrabold uppercase font-heading tracking-wider bg-slate-100/60 dark:bg-slate-800/60">
+                        <th class="py-3 px-5">Proposal #</th>
+                        <th class="py-3 px-5">Title</th>
+                        <th class="py-3 px-5">Client</th>
+                        <th class="py-3 px-5">Valid Until</th>
+                        <th class="py-3 px-5">Value</th>
+                        <th class="py-3 px-5">Status</th>
+                        <th class="py-3 px-5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for prop in proposals %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            <a href="{% url 'invoicing:proposal_detail' pk=prop.pk %}" class="hover:text-indigo-600">
+                                {{ prop.proposal_number }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 px-5 font-semibold text-slate-900 dark:text-white">
+                            {{ prop.title }}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="font-semibold text-slate-900 dark:text-white block">{{ prop.client.display_title }}</span>
+                            <span class="text-[10px] text-slate-400">{{ prop.client.email }}</span>
+                        </td>
+                        <td class="py-3.5 px-5 font-mono text-slate-600 dark:text-slate-300">
+                            {{ prop.valid_until|date:"M d, Y" }}
+                        </td>
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            {{ prop.currency }} ${{ prop.total_amount|floatformat:2 }}
+                        </td>
+                        <td class="py-3.5 px-5">
+                            {% if prop.status == 'Accepted' %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                                Accepted
+                            </span>
+                            {% elif prop.status == 'Declined' %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                                Declined
+                            </span>
+                            {% elif prop.status == 'Sent' %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
+                                Sent
+                            </span>
+                            {% else %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                                Draft
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3.5 px-5 text-right space-x-2">
+                            <a href="{% url 'invoicing:proposal_detail' pk=prop.pk %}" class="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-700">
+                                <span>View</span>
+                                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="brutal-card text-center py-12 space-y-4">
+        <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border-2 border-slate-900 dark:border-indigo-400 flex items-center justify-center mx-auto shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1]">
+            <i data-lucide="file-signature" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
+        </div>
+        <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">No proposals found</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">Create and send professional project proposals with milestone estimates and client approvals.</p>
+        <a href="{% url 'invoicing:proposal_create' %}" class="brutal-btn brutal-btn-primary px-4 py-2 text-xs inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Create First Proposal</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

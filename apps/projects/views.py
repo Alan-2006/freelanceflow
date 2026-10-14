@@ -1,11 +1,31 @@
+from decimal import Decimal
+
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.permissions import freelancer_required
 
-from .forms import DeliverableSubmissionForm, MilestoneForm, ProjectCreateWizardForm, TaskForm
-from .models import Milestone, MilestoneStatus, Project, ProjectStatus, Task, TaskStatus
+from .forms import (
+    AttachmentForm,
+    DeliverableSubmissionForm,
+    MilestoneForm,
+    ProjectCreateWizardForm,
+    TaskForm,
+    TimeEntryForm,
+)
+from .models import (
+    Attachment,
+    Milestone,
+    MilestoneStatus,
+    Project,
+    ProjectStatus,
+    Task,
+    TaskStatus,
+    TimeEntry,
+)
 from .services import ProjectService
 
 
@@ -70,6 +90,7 @@ def project_detail_view(request, pk):
 
     task_form = TaskForm(project)
     milestone_form = MilestoneForm()
+    attachment_form = AttachmentForm()
 
     return render(request, 'projects/detail.html', {
         'project': project,
@@ -80,7 +101,10 @@ def project_detail_view(request, pk):
         'tasks_done': tasks_done,
         'task_form': task_form,
         'milestone_form': milestone_form,
-        'activities': project.activities.all()[:15],
+        'attachment_form': attachment_form,
+        'attachments': project.attachments.all(),
+        'time_entries': project.time_entries.all()[:10],
+        'activities': project.activities.all()[:20],
     })
 
 
@@ -158,3 +182,176 @@ def milestone_submit_deliverable_view(request, pk):
         'milestone': milestone,
         'form': form
     })
+
+
+# --- Time Tracking & Timesheets ---
+
+@freelancer_required
+def timesheet_list_view(request):
+    freelancer = request.user.profile
+    entries = TimeEntry.objects.filter(project__client__freelancer=freelancer).select_related('project', 'task', 'project__client')
+
+    project_filter = request.GET.get('project')
+    if project_filter:
+        entries = entries.filter(project__id=project_filter)
+
+    billable_filter = request.GET.get('billable')
+    if billable_filter == 'yes':
+        entries = entries.filter(is_billable=True)
+    elif billable_filter == 'no':
+        entries = entries.filter(is_billable=False)
+
+    invoiced_filter = request.GET.get('invoiced')
+    if invoiced_filter == 'yes':
+        entries = entries.filter(is_invoiced=True)
+    elif invoiced_filter == 'no':
+        entries = entries.filter(is_invoiced=False)
+
+    total_seconds = sum(e.duration_seconds for e in entries)
+    total_hours = round(total_seconds / 3600, 2)
+    unbilled_entries = entries.filter(is_billable=True, is_invoiced=False)
+    unbilled_amount = sum(e.billable_amount for e in unbilled_entries)
+
+    form = TimeEntryForm(freelancer)
+    projects = freelancer.projects.all() if hasattr(freelancer, 'projects') else Project.objects.filter(client__freelancer=freelancer)
+
+    return render(request, 'projects/timesheets.html', {
+        'entries': entries,
+        'total_hours': total_hours,
+        'unbilled_amount': unbilled_amount,
+        'form': form,
+        'projects': projects,
+        'current_project': project_filter,
+    })
+
+
+@freelancer_required
+@require_POST
+def time_entry_create_view(request):
+    freelancer = request.user.profile
+    form = TimeEntryForm(freelancer, request.POST)
+    if form.is_valid():
+        entry = form.save(commit=False)
+        hours = form.cleaned_data.get('hours', Decimal('1.0'))
+        entry.duration_seconds = int(hours * 3600)
+        if not entry.hourly_rate:
+            entry.hourly_rate = entry.project.hourly_rate or Decimal('0.00')
+        entry.save()
+        messages.success(request, f"Logged {hours} hrs to {entry.project.title}.")
+    else:
+        messages.error(request, "Failed to log time entry. Please check the values entered.")
+    return redirect('projects:timesheets')
+
+
+@freelancer_required
+@require_POST
+def time_entry_save_timer_view(request):
+    """Endpoint called by the persistent navbar timer to log elapsed seconds directly."""
+    freelancer = request.user.profile
+    project_id = request.POST.get('project_id')
+    task_id = request.POST.get('task_id')
+    seconds = int(request.POST.get('seconds', 0))
+    note = request.POST.get('note', '').strip()
+    is_billable = request.POST.get('is_billable', 'true') == 'true'
+
+    if not project_id or seconds <= 0:
+        return JsonResponse({'success': False, 'error': 'Invalid project or duration.'}, status=400)
+
+    project = get_object_or_404(Project, pk=project_id, client__freelancer=freelancer)
+    task = project.tasks.filter(pk=task_id).first() if task_id else None
+
+    entry = TimeEntry.objects.create(
+        project=project,
+        task=task,
+        duration_seconds=seconds,
+        hourly_rate=project.hourly_rate or Decimal('0.00'),
+        is_billable=is_billable,
+        note=note or f"Timer session on {project.title}",
+        start_time=timezone.now() - timezone.timedelta(seconds=seconds),
+        end_time=timezone.now()
+    )
+
+    minutes = max(1, seconds // 60)
+    return JsonResponse({
+        'success': True,
+        'entry_id': str(entry.id),
+        'message': f"Saved {minutes}m to {project.title}!"
+    })
+
+
+@freelancer_required
+@require_POST
+def time_entry_delete_view(request, pk):
+    freelancer = request.user.profile
+    entry = get_object_or_404(TimeEntry, pk=pk, project__client__freelancer=freelancer)
+    if entry.is_invoiced:
+        messages.error(request, "Cannot delete an entry that has already been billed on an invoice.")
+    else:
+        entry.delete()
+        messages.success(request, "Time entry removed.")
+    return redirect('projects:timesheets')
+
+
+# --- Attachments & Collaboration ---
+
+@freelancer_required
+@require_POST
+def attachment_upload_view(request, project_pk):
+    freelancer = request.user.profile
+    project = get_object_or_404(Project, pk=project_pk, client__freelancer=freelancer)
+
+    form = AttachmentForm(request.POST, request.FILES)
+    if form.is_valid():
+        att = form.save(commit=False)
+        att.project = project
+        if att.file:
+            att.file_size_bytes = att.file.size
+        if not att.name:
+            att.name = att.file.name
+        att.save()
+
+        ProjectService.log_activity(
+            project=project,
+            actor_name=freelancer.display_name,
+            action_type='FILE_UPLOADED',
+            details=f"Uploaded file '{att.name}'.",
+            is_client_visible=att.is_shared_with_client
+        )
+        messages.success(request, f"File '{att.name}' attached to project.")
+    else:
+        messages.error(request, "Failed to upload file. Please select a valid file.")
+
+    return redirect('projects:detail', pk=project.pk)
+
+
+@freelancer_required
+@require_POST
+def attachment_delete_view(request, pk):
+    freelancer = request.user.profile
+    att = get_object_or_404(Attachment, pk=pk, project__client__freelancer=freelancer)
+    project_pk = att.project.pk
+    name = att.name
+    att.delete()
+    messages.success(request, f"Attachment '{name}' removed.")
+    return redirect('projects:detail', pk=project_pk)
+
+
+@freelancer_required
+@require_POST
+def project_comment_view(request, pk):
+    freelancer = request.user.profile
+    project = get_object_or_404(Project, pk=pk, client__freelancer=freelancer)
+    comment = request.POST.get('comment', '').strip()
+    is_client_visible = request.POST.get('is_client_visible', 'true') == 'true'
+
+    if comment:
+        ProjectService.log_activity(
+            project=project,
+            actor_name=freelancer.display_name,
+            action_type='COMMENT_POSTED',
+            details=comment,
+            is_client_visible=is_client_visible
+        )
+        messages.success(request, "Update posted to project feed.")
+    return redirect('projects:detail', pk=project.pk)
+

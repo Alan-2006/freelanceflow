@@ -6,8 +6,9 @@ from django.utils import timezone
 from apps.invoicing.models import Invoice, InvoiceStatus
 
 from .channels.email import EmailNotificationChannel
+from .channels.webhook_bot import InAppNotificationChannel, WebhookBotNotificationChannel
 from .defaults import DEFAULT_RULES
-from .models import ReminderLog, ReminderRule
+from .models import ReminderChannelChoice, ReminderLog, ReminderRule
 
 
 class PaymentReminderEngine:
@@ -156,14 +157,24 @@ class PaymentReminderEngine:
                 )
                 log_entry.save()
 
-                # Dispatch notification
-                sent = email_channel.send(
+                # Dispatch notification via configured channel
+                channel_handler = email_channel
+                if rule.channel == ReminderChannelChoice.IN_APP:
+                    channel_handler = InAppNotificationChannel()
+                elif rule.channel in [ReminderChannelChoice.WHATSAPP, ReminderChannelChoice.TELEGRAM]:
+                    channel_handler = WebhookBotNotificationChannel()
+
+                sent = channel_handler.send(
                     recipient=invoice.client.email,
                     subject=subject,
                     body=body,
                     context={
                         'site_url': site_url,
                         'tracking_token': log_entry.tracking_token,
+                        'invoice': invoice,
+                        'freelancer': invoice.freelancer,
+                        'channel': rule.channel,
+                        'url': f"{site_url}/invoicing/public/{invoice.public_token}/",
                     }
                 )
 
@@ -173,10 +184,11 @@ class PaymentReminderEngine:
                         'invoice': invoice.invoice_number,
                         'recipient': invoice.client.email,
                         'tone': rule.tone,
+                        'channel': rule.channel,
                         'log_id': str(log_entry.id)
                     })
                 else:
-                    log_entry.error_message = 'Failed to deliver notification email.'
+                    log_entry.error_message = f'Failed to deliver notification via {rule.channel}.'
                     log_entry.save(update_fields=['error_message'])
 
         return stats

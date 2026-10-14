@@ -75,7 +75,10 @@
             </div>
 
             <div>
-                <label class="block text-xs font-extrabold font-heading text-slate-900 dark:text-slate-200 uppercase tracking-wider mb-1.5">// Security Key / Password</label>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-extrabold font-heading text-slate-900 dark:text-slate-200 uppercase tracking-wider">// Security Key / Password</label>
+                    <a href="{% url 'authentication:password_reset' %}" class="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Forgot password?</a>
+                </div>
                 {{ form.password }}
                 {% if form.password.errors %}
                 <p class="mt-1 text-xs font-bold text-rose-500">{{ form.password.errors.0 }}</p>

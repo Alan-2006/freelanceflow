@@ -247,3 +247,64 @@ def google_callback_view(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     messages.success(request, f"Successfully signed in with Google as {user.email}!")
     return redirect('analytics:dashboard')
+
+
+@login_required
+def notifications_list_view(request):
+    """Full notifications center view."""
+    filter_type = request.GET.get('filter', 'all')
+    notifications = Notification.objects.filter(user=request.user)
+
+    if filter_type == 'unread':
+        notifications = notifications.filter(is_read=False)
+
+    return render(request, 'authentication/notifications.html', {
+        'notifications': notifications,
+        'filter_type': filter_type,
+    })
+
+
+@login_required
+def notification_mark_read_view(request, pk):
+    """Mark a notification as read and redirect to target URL or back."""
+    notif = get_object_or_404(Notification, pk=pk, user=request.user)
+    notif.is_read = True
+    notif.save()
+
+    if request.headers.get('HX-Request') or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'ok'})
+
+    if notif.url:
+        return redirect(notif.url)
+    return redirect(request.META.get('HTTP_REFERER', 'authentication:notifications_list'))
+
+
+@login_required
+@require_POST
+def notification_mark_all_read_view(request):
+    """Mark all notifications as read."""
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    messages.success(request, "All notifications marked as read.")
+    return redirect(request.META.get('HTTP_REFERER', 'authentication:notifications_list'))
+
+
+@login_required
+def change_password_view(request):
+    """Dedicated password change view."""
+    from django.contrib.auth import update_session_auth_hash
+    from django.contrib.auth.forms import PasswordChangeForm
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Your password was successfully updated!")
+            return redirect('authentication:profile')
+        else:
+            messages.error(request, "Please correct the password errors below.")
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'authentication/change_password.html', {'form': form})
+

@@ -68,3 +68,45 @@ def create_or_update_freelancer_profile(sender, instance, created, **kwargs):
             user=instance,
             business_name=f"{instance.first_name} {instance.last_name}".strip() or instance.username
         )
+
+
+class NotificationType(models.TextChoices):
+    INFO = 'INFO', 'Information'
+    SUCCESS = 'SUCCESS', 'Success'
+    WARNING = 'WARNING', 'Warning'
+    INVOICE = 'INVOICE', 'Invoice'
+    MILESTONE = 'MILESTONE', 'Milestone'
+    PAYMENT = 'PAYMENT', 'Payment'
+    PROJECT = 'PROJECT', 'Project'
+
+
+class Notification(TimeStampedModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    url = models.CharField(max_length=500, blank=True, default='')
+    notification_type = models.CharField(
+        max_length=20,
+        choices=NotificationType.choices,
+        default=NotificationType.INFO,
+        db_index=True
+    )
+    is_read = models.BooleanField(default=False, db_index=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} - {self.title}"
+
+
+def create_notification(user, title, message, url='', notification_type=NotificationType.INFO):
+    """Utility to spawn an in-app alert notification."""
+    return Notification.objects.create(
+        user=user,
+        title=title,
+        message=message,
+        url=url,
+        notification_type=notification_type
+    )
+

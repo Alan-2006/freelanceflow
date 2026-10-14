@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}New Recurring Schedule - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="repeat" class="w-6 h-6 text-indigo-600"></i>
+                <span>Create Recurring Retainer</span>
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Setup an automated retainer billing cadence for ongoing clients.</p>
+        </div>
+        <a href="{% url 'invoicing:recurring_list' %}" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-6 sm:p-8 shadow-[6px_6px_0px_#0f172a] dark:shadow-[6px_6px_0px_#6366f1]">
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Schedule Title *</label>
+                {{ form.title }}
+                <p class="text-[11px] text-slate-400 mt-1">e.g. Monthly SEO Retainer, Design Maintenance</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Client *</label>
+                    {{ form.client }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Project (Optional)</label>
+                    {{ form.project }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Billing Cadence *</label>
+                    {{ form.frequency }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Amount ($) *</label>
+                    {{ form.amount }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1.5">Next Generation Date *</label>
+                {{ form.next_run_date }}
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+                {{ form.is_active }}
+                <label for="{{ form.is_active.id_for_label }}" class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    Schedule is active and will generate invoices
+                </label>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <a href="{% url 'invoicing:recurring_list' %}" class="px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-900 dark:hover:text-white">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-600/20">
+                    Save Recurring Schedule
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

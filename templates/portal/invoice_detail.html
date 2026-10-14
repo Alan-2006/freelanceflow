@@ -1,0 +1,168 @@
+{% extends 'portal_base.html' %}
+
+{% block title %}Invoice {{ invoice.invoice_number }} - Client Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl mx-auto">
+    <!-- Top Nav -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'portal:dashboard' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Client Portal</span>
+        </a>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'invoicing:pdf' pk=invoice.pk %}" target="_blank" class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Download PDF</span>
+            </a>
+            {% if invoice.status != 'Paid' and invoice.status != 'Cancelled' %}
+            <a href="{% url 'payments:checkout' invoice_pk=invoice.pk %}" class="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/20">
+                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                <span>Pay Online (${{ invoice.balance_due }})</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Invoice Sheet Document -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-sm space-y-8">
+        <!-- Top Invoice Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+            <div>
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-widest block mb-1">Official Invoice</span>
+                <h1 class="text-3xl font-extrabold font-heading text-slate-900">{{ invoice.invoice_number }}</h1>
+                <p class="text-xs text-slate-500 mt-1">Issued on {{ invoice.issue_date|date:"F d, Y" }}</p>
+            </div>
+            <div class="text-left sm:text-right">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
+                    {% if invoice.status == 'Paid' %}bg-emerald-100 text-emerald-800
+                    {% elif invoice.status == 'Overdue' %}bg-rose-100 text-rose-800
+                    {% else %}bg-indigo-100 text-indigo-800{% endif %}">
+                    {{ invoice.get_status_display }}
+                </span>
+                <div class="mt-2 text-2xl font-black font-heading text-slate-900">
+                    {{ invoice.currency }} ${{ invoice.total_amount }}
+                </div>
+                <div class="text-xs text-slate-500">
+                    Due: <strong class="text-slate-800">{{ invoice.due_date|date:"M d, Y" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- From & To Metadata Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 text-xs">
+            <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Billed By</span>
+                <h3 class="font-bold text-sm text-slate-900">{{ freelancer_profile.display_name }}</h3>
+                {% if freelancer_profile.address %}
+                <p class="text-slate-500 mt-1 whitespace-pre-line">{{ freelancer_profile.address }}</p>
+                {% endif %}
+                {% if freelancer_profile.tax_id %}
+                <p class="text-slate-500 mt-1">Tax ID: {{ freelancer_profile.tax_id }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Billed To</span>
+                <h3 class="font-bold text-sm text-slate-900">{{ client.display_title }}</h3>
+                <p class="text-slate-500 mt-1">{{ client.name }} &bull; {{ client.email }}</p>
+                {% if client.address %}
+                <p class="text-slate-500 mt-1 whitespace-pre-line">{{ client.address }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Line Items Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-200 text-slate-400 uppercase tracking-wider font-semibold">
+                        <th class="py-3">Item Description</th>
+                        <th class="py-3 text-right">Qty / Hrs</th>
+                        <th class="py-3 text-right">Unit Price</th>
+                        <th class="py-3 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                    {% for item in invoice.line_items.all %}
+                    <tr>
+                        <td class="py-3.5 text-slate-900 font-semibold">{{ item.description }}</td>
+                        <td class="py-3.5 text-right text-slate-600 font-mono">{{ item.quantity }}</td>
+                        <td class="py-3.5 text-right text-slate-600 font-mono">${{ item.unit_price }}</td>
+                        <td class="py-3.5 text-right font-bold text-slate-900 font-mono">${{ item.total }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Financial Breakdown & Totals -->
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-6 pt-6 border-t border-slate-100">
+            <div class="max-w-xs space-y-2 text-xs">
+                {% if invoice.notes %}
+                <div>
+                    <strong class="text-slate-700 block">Notes:</strong>
+                    <p class="text-slate-500 mt-0.5">{{ invoice.notes }}</p>
+                </div>
+                {% endif %}
+                {% if invoice.payment_terms %}
+                <div class="pt-2">
+                    <strong class="text-slate-700 block">Terms:</strong>
+                    <p class="text-slate-500 mt-0.5">{{ invoice.payment_terms }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="w-full sm:w-64 space-y-2 text-xs">
+                <div class="flex justify-between text-slate-500">
+                    <span>Subtotal:</span>
+                    <span class="font-mono font-semibold text-slate-900">${{ invoice.subtotal }}</span>
+                </div>
+                {% if invoice.discount_amount > 0 %}
+                <div class="flex justify-between text-emerald-600">
+                    <span>Discount:</span>
+                    <span class="font-mono font-semibold">-${{ invoice.discount_amount }}</span>
+                </div>
+                {% endif %}
+                {% if invoice.tax_amount > 0 %}
+                <div class="flex justify-between text-slate-500">
+                    <span>Tax ({{ invoice.tax_rate }}%):</span>
+                    <span class="font-mono font-semibold text-slate-900">+${{ invoice.tax_amount }}</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between pt-2 border-t border-slate-200 text-sm font-bold text-slate-900">
+                    <span>Total:</span>
+                    <span class="font-mono font-extrabold text-indigo-600">${{ invoice.total_amount }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Amount Paid:</span>
+                    <span class="font-mono font-semibold text-emerald-600">${{ invoice.amount_paid }}</span>
+                </div>
+                <div class="flex justify-between pt-1 border-t border-slate-100 text-base font-extrabold text-slate-900">
+                    <span>Balance Due:</span>
+                    <span class="font-mono text-emerald-600">${{ invoice.balance_due }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instant Payment QR & CTA -->
+        {% if invoice.status != 'Paid' and invoice.status != 'Cancelled' %}
+        <div class="p-6 rounded-2xl bg-indigo-50/70 border border-indigo-200 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                {% if qr_code_base64 %}
+                <div class="bg-white p-2 rounded-xl border border-indigo-200 shadow-sm shrink-0">
+                    <img src="data:image/png;base64,{{ qr_code_base64 }}" alt="Payment QR" class="w-20 h-20">
+                </div>
+                {% endif %}
+                <div>
+                    <h4 class="font-bold text-sm text-indigo-950 font-heading">Settle Balance Instantly</h4>
+                    <p class="text-xs text-indigo-700 mt-0.5">Scan QR with any UPI payment app or proceed through secure card checkout.</p>
+                </div>
+            </div>
+            <a href="{% url 'payments:checkout' invoice_pk=invoice.pk %}" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/30 whitespace-nowrap">
+                Proceed to Checkout &rarr;
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

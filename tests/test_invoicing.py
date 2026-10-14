@@ -133,3 +133,65 @@ class TestInvoicing:
         invoice.refresh_from_db()
         assert invoice.viewed_at is not None
         assert invoice.status == InvoiceStatus.VIEWED
+
+    def test_proposal_creation_and_totals(self, auth_client):
+        from apps.invoicing.models import Proposal, ProposalLineItem, ProposalStatus
+        client_browser, user = auth_client
+        profile = user.profile
+        client_obj = Client.objects.create(freelancer=profile, name='Proposal Client', email='prop@client.com')
+
+        proposal = Proposal.objects.create(
+            freelancer=profile,
+            client=client_obj,
+            title='Mobile App Design & Build',
+            proposal_number='PROP-2026-0001',
+            valid_until=timezone.now().date(),
+            tax_rate=Decimal('5.00')
+        )
+        ProposalLineItem.objects.create(proposal=proposal, description='Design Phase', quantity=1, unit_price=1000, total=1000)
+        ProposalLineItem.objects.create(proposal=proposal, description='Build Phase', quantity=1, unit_price=3000, total=3000)
+
+        proposal.subtotal = Decimal('4000.00')
+        proposal.tax_amount = Decimal('200.00')
+        proposal.total_amount = Decimal('4200.00')
+        proposal.save()
+
+        detail_url = reverse('invoicing:proposal_detail', kwargs={'pk': proposal.pk})
+        response = client_browser.get(detail_url)
+        assert response.status_code == 200
+        assert 'Mobile App Design' in response.content.decode()
+
+    def test_proposal_public_action_and_project_conversion(self, client, auth_client):
+        from apps.invoicing.models import Proposal, ProposalLineItem, ProposalStatus
+        client_browser, user = auth_client
+        profile = user.profile
+        client_obj = Client.objects.create(freelancer=profile, name='Conversion Client', email='conv@client.com')
+
+        proposal = Proposal.objects.create(
+            freelancer=profile,
+            client=client_obj,
+            title='Fullstack Web Platform',
+            proposal_number='PROP-2026-0002',
+            valid_until=timezone.now().date(),
+            subtotal=Decimal('5000.00'),
+            total_amount=Decimal('5000.00')
+        )
+        ProposalLineItem.objects.create(proposal=proposal, description='Milestone 1', quantity=1, unit_price=2500, total=2500)
+        ProposalLineItem.objects.create(proposal=proposal, description='Milestone 2', quantity=1, unit_price=2500, total=2500)
+
+        # Client accepts proposal via public action
+        action_url = reverse('invoicing:proposal_client_action', kwargs={'public_token': proposal.public_token})
+        resp = client.post(action_url, {'action': 'accept'})
+        assert resp.status_code == 302
+        proposal.refresh_from_db()
+        assert proposal.status == ProposalStatus.ACCEPTED
+
+        # Freelancer converts accepted proposal into Project
+        convert_url = reverse('invoicing:proposal_convert', kwargs={'pk': proposal.pk})
+        resp_convert = client_browser.post(convert_url)
+        assert resp_convert.status_code == 302
+        proposal.refresh_from_db()
+        assert proposal.converted_project is not None
+        assert proposal.converted_project.milestones.count() == 2
+        assert proposal.converted_project.budget == Decimal('5000.00')
+

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Milestone, Project, Task
+from .models import Attachment, Milestone, Project, Task, TimeEntry
 
 TEMPLATE_CHOICES = [
     ('', 'Start Blank (Custom Milestones)'),
@@ -138,3 +138,65 @@ class DeliverableSubmissionForm(forms.ModelForm):
                 'class': 'w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
             })
         }
+
+
+class TimeEntryForm(forms.ModelForm):
+    hours = forms.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        min_value=0.01,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white',
+            'placeholder': 'e.g. 2.5',
+            'step': '0.25'
+        }),
+        help_text='Logged duration in hours'
+    )
+
+    class Meta:
+        model = TimeEntry
+        fields = ['project', 'task', 'hourly_rate', 'is_billable', 'note']
+        widgets = {
+            'project': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+            }),
+            'task': forms.Select(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+            }),
+            'hourly_rate': forms.NumberInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white',
+                'step': '0.01'
+            }),
+            'note': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white',
+                'placeholder': 'What did you work on?'
+            }),
+            'is_billable': forms.CheckboxInput(attrs={
+                'class': 'rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4'
+            })
+        }
+
+    def __init__(self, freelancer_profile, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['project'].queryset = Project.objects.filter(client__freelancer=freelancer_profile)
+        self.fields['task'].queryset = Task.objects.filter(project__client__freelancer=freelancer_profile)
+        self.fields['task'].required = False
+
+
+class AttachmentForm(forms.ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ['file', 'name', 'is_shared_with_client']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white',
+                'placeholder': 'e.g. Design Assets v2.zip'
+            }),
+            'file': forms.FileInput(attrs={
+                'class': 'w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+            }),
+            'is_shared_with_client': forms.CheckboxInput(attrs={
+                'class': 'rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4'
+            })
+        }
+

@@ -29,31 +29,97 @@
             </div>
         </div>
 
-        <!-- Online Payment Methods Card -->
-        <div class="p-5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 space-y-4">
-            <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h4 class="text-sm font-bold text-slate-900">Instant Card / NetBanking / UPI Checkout</h4>
-                    <p class="text-xs text-slate-600">256-bit encrypted checkout via Razorpay Gateway (Test Mode).</p>
-                </div>
+        <!-- Online Payment Gateways Selector with Alpine tabs -->
+        <div x-data="{ gateway: 'razorpay' }" class="space-y-4">
+            <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-xl">
+                <button type="button" @click="gateway = 'razorpay'"
+                        :class="gateway === 'razorpay' ? 'bg-white text-indigo-600 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="flex-1 py-2 text-xs rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    <span>Razorpay (UPI / NetBanking / Cards)</span>
+                </button>
+                <button type="button" @click="gateway = 'stripe'"
+                        :class="gateway === 'stripe' ? 'bg-white text-indigo-600 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900 font-medium'"
+                        class="flex-1 py-2 text-xs rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i>
+                    <span>Stripe (Global Card)</span>
+                </button>
             </div>
 
-            <!-- Razorpay Trigger Form -->
-            <form id="razorpayForm" method="post" action="{% url 'payments:verify' invoice_pk=invoice.pk %}">
-                {% csrf_token %}
-                <input type="hidden" name="razorpay_order_id" id="rzpOrderId" value="{{ order.order_id }}">
-                <input type="hidden" name="razorpay_payment_id" id="rzpPaymentId" value="">
-                <input type="hidden" name="razorpay_signature" id="rzpSignature" value="">
+            <!-- Razorpay Card -->
+            <div x-show="gateway === 'razorpay'" class="p-5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900">Instant UPI & NetBanking Checkout</h4>
+                        <p class="text-xs text-slate-600">256-bit encrypted checkout via Razorpay Gateway.</p>
+                    </div>
+                </div>
 
-                <button type="button" id="rzpPayBtn"
-                        class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
-                    <i data-lucide="lock" class="w-4 h-4"></i>
-                    <span>Pay ${{ invoice.balance_due }} with Razorpay</span>
-                </button>
-            </form>
+                <!-- Razorpay Trigger Form -->
+                <form id="razorpayForm" method="post" action="{% url 'payments:verify' invoice_pk=invoice.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="razorpay_order_id" id="rzpOrderId" value="{{ order.order_id }}">
+                    <input type="hidden" name="razorpay_payment_id" id="rzpPaymentId" value="">
+                    <input type="hidden" name="razorpay_signature" id="rzpSignature" value="">
+
+                    <button type="button" id="rzpPayBtn"
+                            class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>Pay ${{ invoice.balance_due }} with Razorpay</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Stripe Card -->
+            <div x-show="gateway === 'stripe'" class="p-5 rounded-xl bg-indigo-50/70 border border-indigo-200/80 space-y-4" style="display: none;">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
+                        <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900">Stripe Card Payment</h4>
+                        <p class="text-xs text-slate-600">Pay securely with Visa, Mastercard, or Amex.</p>
+                    </div>
+                </div>
+
+                <form id="stripeForm" method="post" action="{% url 'payments:verify_stripe' invoice_pk=invoice.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_intent_id" id="stripeIntentId" value="{{ stripe_order.order_id }}">
+                    <input type="hidden" name="signature" id="stripeSignature" value="sim_sig_{{ stripe_order.order_id }}">
+
+                    <div class="space-y-3 mb-4">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Card Number (Simulated / Test)</label>
+                            <div class="relative">
+                                <input type="text" placeholder="4242 4242 4242 4242" value="4242 •••• •••• 4242"
+                                       class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400">VISA</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Expiry</label>
+                                <input type="text" placeholder="12/28" value="12/28"
+                                       class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">CVC</label>
+                                <input type="text" placeholder="123" value="•••"
+                                       class="w-full text-xs font-mono px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full py-3.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>Pay ${{ invoice.balance_due }} via Stripe</span>
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Wire / Manual Instructions Box -->

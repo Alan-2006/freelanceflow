@@ -102,6 +102,30 @@
                 <span class="text-xs text-slate-400">Read settled receipts and transactions</span>
             </div>
         </div>
+
+        <!-- Endpoint: Timesheets -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">POST</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/timesheets/</span>
+                </div>
+                <span class="text-xs text-slate-400">Log and manage tracked billable hours and durations</span>
+            </div>
+        </div>
+
+        <!-- Endpoint: Expenses -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-100 text-emerald-800">GET</span>
+                    <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-indigo-100 text-indigo-800">POST</span>
+                    <span class="font-mono text-sm font-bold text-slate-900 dark:text-white">/api/v1/expenses/</span>
+                </div>
+                <span class="text-xs text-slate-400">Track overhead, software subscriptions, and project expenses</span>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

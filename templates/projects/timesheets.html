@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+
+{% block title %}Timesheets & Time Tracking - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto" x-data="{ showLogModal: false }">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white flex items-center gap-3">
+                <i data-lucide="clock" class="w-7 h-7 text-indigo-600 dark:text-indigo-400"></i>
+                <span>Timesheets & Time Tracking</span>
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Track billable hours, review project time logs, and convert unbilled time into invoices.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button @click="showLogModal = true" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Log Time Manually</span>
+            </button>
+            <a href="{% url 'invoicing:create' %}" class="inline-flex items-center gap-2 px-4 py-2 brutal-glass border-2 border-slate-900 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl font-semibold text-sm shadow-xs hover:border-indigo-600 transition-all">
+                <i data-lucide="receipt" class="w-4 h-4 text-indigo-600"></i>
+                <span>Invoice Unbilled Time</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#6366f1]">
+            <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Recorded Hours</span>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ total_hours }}</span>
+                <span class="text-xs text-slate-500">hours</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-400">Across all active & completed logs</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#10b981]">
+            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Unbilled Value</span>
+            <div class="mt-2 flex items-baseline gap-2">
+                <span class="text-3xl font-extrabold font-heading text-emerald-600 dark:text-emerald-400">${{ unbilled_amount|floatformat:2 }}</span>
+                <span class="text-xs text-slate-500">billable</span>
+            </div>
+            <p class="mt-1 text-xs text-slate-400">Ready to convert to client invoices</p>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#8b5cf6]">
+            <span class="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider">Active Stopwatch</span>
+            <div class="mt-2 flex items-baseline gap-2" x-data="persistentTimer()">
+                <span class="text-2xl font-mono font-bold text-slate-900 dark:text-white" x-text="formatTime(seconds)">00:00:00</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold" :class="isRunning ? 'bg-emerald-100 text-emerald-800 animate-pulse' : 'bg-slate-100 text-slate-600'">
+                    <span x-text="isRunning ? 'RUNNING' : 'PAUSED'"></span>
+                </span>
+            </div>
+            <p class="mt-1 text-xs text-slate-400">Control timer via the persistent top bar</p>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span class="font-semibold text-slate-700 dark:text-slate-300">Filter Project:</span>
+            <a href="{% url 'projects:timesheets' %}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if not current_project %}bg-indigo-600 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900{% endif %}">
+                All Projects
+            </a>
+            {% for p in projects %}
+            <a href="?project={{ p.id }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {% if current_project == p.id|stringformat:'s' %}bg-indigo-600 text-white{% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900{% endif %}">
+                {{ p.title }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Timesheet Entries Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="text-base font-bold font-heading text-slate-900 dark:text-white">Logged Time Entries</h2>
+            <span class="text-xs text-slate-500">{{ entries.count }} entries recorded</span>
+        </div>
+
+        {% if entries %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                        <th class="py-3.5 px-6">Date</th>
+                        <th class="py-3.5 px-6">Project & Client</th>
+                        <th class="py-3.5 px-6">Task / Description</th>
+                        <th class="py-3.5 px-6 text-right">Duration</th>
+                        <th class="py-3.5 px-6 text-right">Rate</th>
+                        <th class="py-3.5 px-6 text-right">Amount</th>
+                        <th class="py-3.5 px-6 text-center">Status</th>
+                        <th class="py-3.5 px-6 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+                    {% for entry in entries %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-4 px-6 text-slate-600 dark:text-slate-400 text-xs">
+                            {{ entry.start_time|date:"M d, Y" }}
+                        </td>
+                        <td class="py-4 px-6">
+                            <a href="{% url 'projects:detail' pk=entry.project.pk %}" class="font-bold text-slate-900 dark:text-white hover:text-indigo-600">
+                                {{ entry.project.title }}
+                            </a>
+                            <div class="text-xs text-indigo-600 dark:text-indigo-400">
+                                {{ entry.project.client.display_title }}
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-slate-700 dark:text-slate-300">
+                            {% if entry.task %}
+                            <span class="inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 mr-2">
+                                {{ entry.task.title }}
+                            </span>
+                            {% endif %}
+                            <span>{{ entry.note|default:"—" }}</span>
+                        </td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-slate-900 dark:text-white">
+                            {{ entry.duration_seconds|divisibleby:3600|yesno:"hours,hours" }}
+                            {% widthratio entry.duration_seconds 3600 1 as hrs %}
+                            {{ entry.duration_seconds|floatformat:0|stringformat:"s"|slice:":-2" }}
+                            <span class="text-xs font-normal text-slate-500">({{ entry.duration_seconds|stringformat:"s" }}s)</span>
+                        </td>
+                        <td class="py-4 px-6 text-right text-slate-600 dark:text-slate-400">
+                            ${{ entry.hourly_rate }}/h
+                        </td>
+                        <td class="py-4 px-6 text-right font-bold {% if entry.is_billable %}text-emerald-600 dark:text-emerald-400{% else %}text-slate-400{% endif %}">
+                            {% if entry.is_billable %}
+                                ${{ entry.billable_amount }}
+                            {% else %}
+                                <span class="text-xs font-semibold text-slate-400">Non-billable</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            {% if entry.is_invoiced %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                <i data-lucide="check" class="w-3 h-3"></i> Invoiced
+                            </span>
+                            {% elif entry.is_billable %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                <i data-lucide="clock" class="w-3 h-3"></i> Unbilled
+                            </span>
+                            {% else %}
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                Internal
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            {% if not entry.is_invoiced %}
+                            <form method="post" action="{% url 'projects:time_entry_delete' pk=entry.pk %}" onsubmit="return confirm('Remove this time log?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-500 transition-colors" title="Delete Entry">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <i data-lucide="clock" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">No time entries recorded yet</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Start the navbar timer or click below to record billable hours manually.</p>
+            <button @click="showLogModal = true" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Log First Time Entry</span>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Manual Log Modal -->
+    <div x-show="showLogModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" @click="showLogModal = false"></div>
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-6 shadow-[8px_8px_0px_#0f172a] dark:shadow-[8px_8px_0px_#6366f1] z-10">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <h3 class="text-lg font-bold font-heading text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                        <span>Log Time Entry</span>
+                    </h3>
+                    <button @click="showLogModal = false" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form method="post" action="{% url 'projects:time_entry_create' %}" class="mt-4 space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Project *</label>
+                        {{ form.project }}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Task (Optional)</label>
+                        {{ form.task }}
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Hours *</label>
+                            {{ form.hours }}
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Hourly Rate ($)</label>
+                            {{ form.hourly_rate }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Description / Note</label>
+                        {{ form.note }}
+                    </div>
+                    <div class="flex items-center gap-2 pt-2">
+                        {{ form.is_billable }}
+                        <label for="{{ form.is_billable.id_for_label }}" class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Billable to Client
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <button type="button" @click="showLogModal = false" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-600/20">
+                            Save Time Log
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

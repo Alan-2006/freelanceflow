@@ -163,3 +163,82 @@ class RecurringInvoice(TimeStampedModel):
 
     def __str__(self):
         return f"[Recurring] {self.title} - ${self.amount} ({self.frequency})"
+
+
+class ProposalStatus(models.TextChoices):
+    DRAFT = 'Draft', 'Draft'
+    SENT = 'Sent', 'Sent'
+    ACCEPTED = 'Accepted', 'Accepted'
+    DECLINED = 'Declined', 'Declined'
+
+
+class Proposal(TimeStampedModel):
+    freelancer = models.ForeignKey(
+        FreelancerProfile,
+        on_delete=models.CASCADE,
+        related_name='proposals'
+    )
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='proposals'
+    )
+    title = models.CharField(max_length=200)
+    proposal_number = models.CharField(max_length=50, db_index=True)
+    status = models.CharField(
+        max_length=20,
+        choices=ProposalStatus.choices,
+        default=ProposalStatus.DRAFT,
+        db_index=True
+    )
+    issue_date = models.DateField(default=timezone.now)
+    valid_until = models.DateField()
+    currency = models.CharField(max_length=10, default='USD')
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
+    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    overview = models.TextField(blank=True, default='')
+    scope_of_work = models.TextField(blank=True, default='')
+    terms = models.TextField(blank=True, default='')
+    public_token = models.CharField(max_length=64, unique=True, db_index=True, blank=True)
+    converted_project = models.ForeignKey(
+        Project,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='source_proposal'
+    )
+    converted_invoice = models.ForeignKey(
+        Invoice,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='source_proposal'
+    )
+
+    class Meta:
+        ordering = ['-issue_date', '-created_at']
+
+    def __str__(self):
+        return f"{self.proposal_number} - {self.title} (${self.total_amount})"
+
+    def save(self, *args, **kwargs):
+        if not self.public_token:
+            self.public_token = generate_random_token(40)
+        super().save(*args, **kwargs)
+
+
+class ProposalLineItem(TimeStampedModel):
+    proposal = models.ForeignKey(
+        Proposal,
+        on_delete=models.CASCADE,
+        related_name='line_items'
+    )
+    description = models.CharField(max_length=255)
+    quantity = models.DecimalField(max_digits=8, decimal_places=2, default=Decimal('1.00'))
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+
+    def __str__(self):
+        return f"{self.description} (${self.total})"

@@ -220,3 +220,26 @@ class Attachment(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+
+class MilestoneFeedback(TimeStampedModel):
+    milestone = models.ForeignKey(
+        Milestone,
+        on_delete=models.CASCADE,
+        related_name='feedbacks'
+    )
+    author_name = models.CharField(max_length=150)
+    is_client = models.BooleanField(default=True)
+    feedback_text = models.TextField()
+    status_at_time = models.CharField(
+        max_length=20,
+        choices=MilestoneStatus.choices,
+        default=MilestoneStatus.REJECTED
+    )
+    attachment = models.FileField(upload_to='milestone_feedback/', blank=True, null=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Feedback on {self.milestone.title} by {self.author_name}"

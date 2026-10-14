@@ -46,6 +46,30 @@
             {% endif %}
         </div>
 
+        {% if feedbacks %}
+        <!-- Revision & Feedback Thread -->
+        <div class="space-y-3">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="history" class="w-4 h-4 text-indigo-500"></i>
+                Revision & Feedback History ({{ feedbacks.count }})
+            </span>
+            <div class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                {% for fb in feedbacks %}
+                <div class="p-3.5 rounded-xl border text-xs {% if fb.status_at_time == 'Approved' %}bg-emerald-50 border-emerald-200 text-emerald-900{% else %}bg-amber-50 border-amber-200 text-amber-900{% endif %}">
+                    <div class="flex items-center justify-between font-semibold mb-1">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                            {{ fb.author_name }}
+                        </span>
+                        <span class="text-[10px] text-slate-500">{{ fb.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <p class="whitespace-pre-wrap leading-relaxed">{{ fb.feedback_text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Approval / Rejection Controls -->
         <div class="pt-4 border-t border-slate-100 space-y-4">
             <!-- Normal Mode: Choose Approve or Request Changes -->

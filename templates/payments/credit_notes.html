@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Credit Notes & Refunds - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Credit Notes & Refunds</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Issue credit adjustments, cancel disputed billings, and record refund settlements.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{% url 'payments:list' %}" class="px-4 py-2 brutal-glass border-2 border-slate-900 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl font-bold text-xs">
+                Payments List
+            </a>
+            <a href="{% url 'payments:credit_note_create' %}" class="brutal-btn brutal-btn-primary px-4 py-2 text-xs flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Issue Credit Note</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Credit Notes Table -->
+    {% if credit_notes %}
+    <div class="brutal-card p-0 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#6366f1] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b-2 border-slate-900/15 dark:border-white/15 text-slate-500 dark:text-slate-300 font-extrabold uppercase font-heading tracking-wider bg-slate-100/60 dark:bg-slate-800/60">
+                        <th class="py-3 px-5">Credit Note #</th>
+                        <th class="py-3 px-5">Related Invoice</th>
+                        <th class="py-3 px-5">Client</th>
+                        <th class="py-3 px-5">Issued Date</th>
+                        <th class="py-3 px-5">Amount</th>
+                        <th class="py-3 px-5">Reason</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for cn in credit_notes %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-3.5 px-5 font-mono font-bold text-slate-900 dark:text-white">
+                            {{ cn.credit_note_number }}
+                        </td>
+                        <td class="py-3.5 px-5 font-mono font-semibold">
+                            <a href="{% url 'invoicing:detail' pk=cn.invoice.pk %}" class="text-indigo-600 hover:text-indigo-700">
+                                {{ cn.invoice.invoice_number }}
+                            </a>
+                        </td>
+                        <td class="py-3.5 px-5">
+                            <span class="font-semibold text-slate-900 dark:text-white block">{{ cn.invoice.client.display_title }}</span>
+                        </td>
+                        <td class="py-3.5 px-5 font-mono text-slate-600 dark:text-slate-300">
+                            {{ cn.issued_date|date:"M d, Y" }}
+                        </td>
+                        <td class="py-3.5 px-5 font-mono font-bold text-rose-600 dark:text-rose-400">
+                            -${{ cn.amount|floatformat:2 }}
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-600 dark:text-slate-300 max-w-xs truncate">
+                            {{ cn.reason }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="brutal-card text-center py-12 space-y-4">
+        <div class="w-12 h-12 bg-rose-50 dark:bg-rose-950/40 rounded-2xl border-2 border-slate-900 dark:border-rose-400 flex items-center justify-center mx-auto shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#f43f5e]">
+            <i data-lucide="receipt" class="w-6 h-6 text-rose-600 dark:text-rose-400"></i>
+        </div>
+        <h3 class="text-base font-bold font-heading text-slate-900 dark:text-white">No Credit Notes Issued</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto">Credit notes balance invoice accounts and document refunds given to clients.</p>
+        <a href="{% url 'payments:credit_note_create' %}" class="brutal-btn brutal-btn-primary px-4 py-2 text-xs inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Issue Credit Note</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

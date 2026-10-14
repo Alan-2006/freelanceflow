@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Recurring Retainers & Schedules - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white flex items-center gap-3">
+                <i data-lucide="refresh-cw" class="w-7 h-7 text-indigo-600 dark:text-indigo-400"></i>
+                <span>Recurring Retainers & Subscriptions</span>
+            </h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Automate recurring client billings for weekly retainers, monthly maintenance, and quarterly contracts.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'invoicing:recurring_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-indigo-600/20 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>New Recurring Schedule</span>
+            </a>
+            <a href="{% url 'invoicing:list' %}" class="inline-flex items-center gap-2 px-4 py-2 brutal-glass border-2 border-slate-900 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl font-semibold text-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span>Back to Invoices</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recurring Invoices Grid / Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h2 class="text-base font-bold font-heading text-slate-900 dark:text-white">Active Retainer Templates</h2>
+            <span class="text-xs text-slate-500">{{ recurring_templates.count }} schedules</span>
+        </div>
+
+        {% if recurring_templates %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-semibold">
+                        <th class="py-3.5 px-6">Schedule Title</th>
+                        <th class="py-3.5 px-6">Client & Project</th>
+                        <th class="py-3.5 px-6">Cadence</th>
+                        <th class="py-3.5 px-6 text-right">Amount</th>
+                        <th class="py-3.5 px-6">Next Run Date</th>
+                        <th class="py-3.5 px-6 text-center">Status</th>
+                        <th class="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-medium">
+                    {% for rec in recurring_templates %}
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td class="py-4 px-6 font-bold text-slate-900 dark:text-white">
+                            {{ rec.title }}
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-400 block">{{ rec.client.display_title }}</span>
+                            {% if rec.project %}
+                            <span class="text-xs text-slate-500">{{ rec.project.title }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                                {{ rec.get_frequency_display }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right font-extrabold text-emerald-600 dark:text-emerald-400 text-base">
+                            ${{ rec.amount }}
+                        </td>
+                        <td class="py-4 px-6 text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                            {{ rec.next_run_date|date:"M d, Y" }}
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            {% if rec.is_active %}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
+                                Paused
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <form method="post" action="{% url 'invoicing:recurring_generate' pk=rec.pk %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors" title="Generate Invoice Now">
+                                        <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{% url 'invoicing:recurring_toggle' pk=rec.pk %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-lg {% if rec.is_active %}text-amber-500 hover:bg-amber-50{% else %}text-emerald-600 hover:bg-emerald-50{% endif %} transition-colors" title="{% if rec.is_active %}Pause{% else %}Activate{% endif %}">
+                                        <i :data-lucide="{% if rec.is_active %}'pause'{% else %}'play'{% endif %}" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+
+                                <form method="post" action="{% url 'invoicing:recurring_delete' pk=rec.pk %}" onsubmit="return confirm('Remove this recurring schedule?');" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors" title="Delete Schedule">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                <i data-lucide="refresh-cw" class="w-8 h-8"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">No recurring retainers setup</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">Create a recurring retainer schedule to automatically generate recurring monthly or weekly invoices.</p>
+            <a href="{% url 'invoicing:recurring_create' %}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Set Up First Schedule</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

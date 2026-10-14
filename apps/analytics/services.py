@@ -51,27 +51,47 @@ class AnalyticsService:
         denom = total_revenue + overdue_amount
         collection_health_rate = round(float((total_revenue / denom) * 100), 1) if denom > 0 else 100.0
 
+        # 7. Total Business Expenses & Net Profit
+        total_expenses = Decimal('0.00')
+        if hasattr(freelancer, 'expenses'):
+            total_expenses = freelancer.expenses.aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+        net_profit = total_revenue - total_expenses
+        profit_margin_pct = round(float((net_profit / total_revenue) * 100), 1) if total_revenue > 0 else 0.0
+
+        # 8. Multi-currency breakdown
+        currency_breakdown = list(
+            invoices.values('currency').annotate(
+                total_billed=Sum('total_amount'),
+                total_paid=Sum('amount_paid')
+            ).order_by('-total_paid')
+        )
+
         return {
             'total_revenue': total_revenue,
+            'total_expenses': total_expenses,
+            'net_profit': net_profit,
+            'profit_margin_pct': profit_margin_pct,
             'outstanding': outstanding,
             'overdue_amount': overdue_amount,
             'avg_days_to_pay': avg_days_to_pay,
             'mrr': mrr,
             'collection_health_rate': collection_health_rate,
+            'currency_breakdown': currency_breakdown,
             'active_projects_count': freelancer.clients.aggregate(
                 total=Count('projects', filter=Q(projects__status='Active'))
             )['total'] or 0
         }
+
 
     @staticmethod
     def get_revenue_by_month(freelancer, months_count: int = 6):
         """Aggregate settled payments over the last N months."""
         labels = []
         data = []
+        expense_data = []
         today = timezone.now().date()
 
         for i in range(months_count - 1, -1, -1):
-            # Calculate month boundary
             year = today.year
             month = today.month - i
             while month <= 0:
@@ -90,10 +110,30 @@ class AnalyticsService:
                 paid_at__lt=next_month
             ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
 
+            m_exp = Decimal('0.00')
+            if hasattr(freelancer, 'expenses'):
+                m_exp = freelancer.expenses.filter(
+                    date__gte=month_start.date(),
+                    date__lt=next_month.date()
+                ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
+
             labels.append(month_start.strftime("%b %Y"))
             data.append(float(monthly_sum))
+            expense_data.append(float(m_exp))
 
+        return {'labels': labels, 'data': data, 'expense_data': expense_data}
+
+    @staticmethod
+    def get_expenses_by_category(freelancer):
+        if not hasattr(freelancer, 'expenses'):
+            return {'labels': [], 'data': []}
+        from .models import ExpenseCategory
+        cat_map = dict(ExpenseCategory.choices)
+        grouped = freelancer.expenses.values('category').annotate(total=Sum('amount')).order_by('-total')
+        labels = [cat_map.get(g['category'], g['category']) for g in grouped]
+        data = [float(g['total']) for g in grouped]
         return {'labels': labels, 'data': data}
+
 
     @staticmethod
     def get_income_by_client(freelancer):

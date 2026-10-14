@@ -63,3 +63,26 @@ class PaymentSerializer(serializers.ModelSerializer):
             'id', 'invoice', 'receipt_number', 'amount', 'currency',
             'method', 'status', 'paid_at', 'notes'
         ]
+
+
+class TimeEntrySerializer(serializers.ModelSerializer):
+    billable_amount = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    class Meta:
+        from apps.projects.models import TimeEntry
+        model = TimeEntry
+        fields = [
+            'id', 'project', 'task', 'start_time', 'end_time', 'duration_seconds',
+            'is_billable', 'is_invoiced', 'hourly_rate', 'note', 'billable_amount', 'created_at'
+        ]
+
+
+class ExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        from apps.analytics.models import Expense
+        model = Expense
+        fields = [
+            'id', 'category', 'title', 'amount', 'date',
+            'project', 'notes', 'created_at'
+        ]
+

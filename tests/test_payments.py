@@ -1,13 +1,14 @@
 from decimal import Decimal
 
 import pytest
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.clients.models import Client
 from apps.invoicing.models import Invoice, InvoiceLineItem, InvoiceStatus
 from apps.invoicing.services.calculator import InvoiceCalculator
 from apps.payments.gateways.mock_gateway import MockPaymentGateway
-from apps.payments.models import PaymentMethod
+from apps.payments.models import Payment, PaymentMethod
 from apps.payments.services import PaymentService
 from apps.projects.models import Milestone, MilestoneStatus, Project
 
@@ -120,3 +121,84 @@ class TestPayments:
         assert order['order_id'] == 'order_mock_INV-101'
         assert mock_gw.verify_payment_signature('order_1', 'pay_1', 'mock_sig_123') is True
         assert mock_gw.verify_payment_signature('order_1', 'pay_1', 'invalid_sig') is False
+
+    def test_stripe_webhook_view(self, client, auth_client):
+        import json
+        _, user = auth_client
+        profile = user.profile
+        client_obj = Client.objects.create(freelancer=profile, name='Bruce Wayne', email='bruce@wayne.com')
+        invoice = Invoice.objects.create(
+            freelancer=profile,
+            client=client_obj,
+            invoice_number='INV-STRIPE-001',
+            due_date=timezone.now().date(),
+            total_amount=Decimal('450.00'),
+            amount_paid=Decimal('0.00'),
+            status=InvoiceStatus.SENT
+        )
+
+        payload = {
+            'type': 'payment_intent.succeeded',
+            'data': {
+                'object': {
+                    'id': 'pi_test_stripe_123456',
+                    'amount': 45000,
+                    'currency': 'usd',
+                    'metadata': {
+                        'invoice_id': str(invoice.id)
+                    }
+                }
+            }
+        }
+
+        url = reverse('payments:stripe_webhook')
+        response = client.post(
+            url,
+            data=json.dumps(payload),
+            content_type='application/json'
+        )
+        assert response.status_code == 200
+        invoice.refresh_from_db()
+        assert invoice.amount_paid == Decimal('450.00')
+        assert invoice.status == InvoiceStatus.PAID
+        payment = Payment.objects.filter(gateway_payment_id='pi_test_stripe_123456').first()
+        assert payment is not None
+        assert payment.method == PaymentMethod.STRIPE
+
+    def test_credit_note_creation_and_refund(self, auth_client):
+        from apps.payments.models import CreditNote, PaymentStatus
+        client_browser, user = auth_client
+        profile = user.profile
+        client_obj = Client.objects.create(freelancer=profile, name='Refund Client', email='refund@client.com')
+        invoice = Invoice.objects.create(
+            freelancer=profile,
+            client=client_obj,
+            invoice_number='INV-REFUND-001',
+            due_date=timezone.now().date(),
+            total_amount=Decimal('1000.00'),
+            amount_paid=Decimal('1000.00'),
+            status=InvoiceStatus.PAID
+        )
+
+        create_url = reverse('payments:credit_note_create')
+        response = client_browser.post(create_url, {
+            'invoice': str(invoice.id),
+            'amount': '300.00',
+            'reason': 'Partial project cancellation and scope adjustment.',
+            'issued_date': str(timezone.now().date()),
+        })
+        assert response.status_code == 302
+        invoice.refresh_from_db()
+        assert invoice.amount_paid == Decimal('700.00')
+        assert invoice.status == InvoiceStatus.PARTIALLY_PAID
+
+        cn = CreditNote.objects.filter(invoice=invoice).first()
+        assert cn is not None
+        assert cn.amount == Decimal('300.00')
+        assert 'CN-' in cn.credit_note_number
+
+        refund_payment = Payment.objects.filter(invoice=invoice, status=PaymentStatus.REFUNDED).first()
+        assert refund_payment is not None
+        assert refund_payment.amount == Decimal('300.00')
+
+

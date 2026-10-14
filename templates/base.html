@@ -114,22 +114,54 @@
                 </a>
 
                 <a href="{% url 'projects:list' %}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'projects' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'projects' and request.resolver_match.url_name != 'timesheets' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="kanban-square" class="w-5 h-5"></i>
                     Projects & Tasks
                 </a>
 
+                <a href="{% url 'projects:timesheets' %}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.url_name == 'timesheets' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                    <i data-lucide="clock" class="w-5 h-5"></i>
+                    Timesheets
+                </a>
+
+                <a href="{% url 'invoicing:proposal_list' %}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if 'proposal' in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                    <i data-lucide="file-signature" class="w-5 h-5"></i>
+                    Proposals & Quotes
+                </a>
+
                 <a href="{% url 'invoicing:list' %}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'invoicing' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'invoicing' and 'recurring' not in request.resolver_match.url_name and 'proposal' not in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="file-text" class="w-5 h-5"></i>
                     Invoices
                 </a>
 
+                <a href="{% url 'invoicing:recurring_list' %}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if 'recurring' in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    Recurring Retainers
+                </a>
+
                 <a href="{% url 'payments:list' %}" 
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'payments' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'payments' and 'credit_note' not in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
                     <i data-lucide="credit-card" class="w-5 h-5"></i>
                     Payments
                 </a>
+
+                <a href="{% url 'payments:credit_note_list' %}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if 'credit_note' in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                    <i data-lucide="receipt" class="w-5 h-5"></i>
+                    Credit Notes
+                </a>
+
+                <a href="{% url 'analytics:expenses' %}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if 'expenses' in request.resolver_match.url_name %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
+                    <i data-lucide="receipt-text" class="w-5 h-5"></i>
+                    Expenses
+                </a>
+
+
 
                 <a href="{% url 'reminders:dashboard' %}" 
                    class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all {% if request.resolver_match.app_name == 'reminders' %}border-2 border-slate-900 dark:border-indigo-400 bg-white/90 dark:bg-slate-800/90 text-indigo-600 dark:text-indigo-400 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1] translate-x-1{% else %}text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-slate-800/50 hover:translate-x-0.5{% endif %}">
@@ -201,21 +233,58 @@
                 <div class="flex items-center gap-3 sm:gap-4">
                     
                     <!-- Persistent Timer Widget -->
-                    <div class="flex items-center gap-2 brutal-glass !rounded-xl px-3 py-1.5 border-2 border-slate-900 dark:border-slate-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]"
-                         x-data="persistentTimer()">
-                        <div class="w-2.5 h-2.5 rounded-full" :class="isRunning ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'"></div>
-                        <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100" x-text="formatTime(seconds)">00:00:00</span>
-                        <button @click="toggleTimer()" 
-                                class="p-1 rounded-md transition-colors"
-                                :class="isRunning ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40' : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'"
-                                :title="isRunning ? 'Pause Timer' : 'Start Timer'">
-                            <i :data-lucide="isRunning ? 'pause' : 'play'" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button x-show="seconds > 0" @click="resetTimer()" 
-                                class="p-1 text-slate-400 hover:text-rose-500 rounded-md transition-colors" title="Reset">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                        </button>
+                    <div class="relative" x-data="persistentTimer()">
+                        <div class="flex items-center gap-2 brutal-glass !rounded-xl px-3 py-1.5 border-2 border-slate-900 dark:border-slate-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]">
+                            <div class="w-2.5 h-2.5 rounded-full" :class="isRunning ? 'bg-emerald-500 animate-ping' : 'bg-slate-400'"></div>
+                            <span class="font-mono text-xs font-bold text-slate-900 dark:text-slate-100" x-text="formatTime(seconds)">00:00:00</span>
+                            <button @click="toggleTimer()" 
+                                    class="p-1 rounded-md transition-colors"
+                                    :class="isRunning ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/40' : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'"
+                                    :title="isRunning ? 'Pause Timer' : 'Start Timer'">
+                                <i :data-lucide="isRunning ? 'pause' : 'play'" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button x-show="seconds > 0" @click="resetTimer()" 
+                                    class="p-1 text-slate-400 hover:text-rose-500 rounded-md transition-colors" title="Reset">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button x-show="seconds > 5" @click="showSaveModal = !showSaveModal" 
+                                    class="p-1 text-indigo-500 hover:text-indigo-600 rounded-md transition-colors" title="Save to Timesheet">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+
+                        <!-- Timer Save Flyout Dropdown -->
+                        <div x-show="showSaveModal" @click.away="showSaveModal = false" x-cloak
+                             class="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-4 shadow-[6px_6px_0px_#0f172a] dark:shadow-[6px_6px_0px_#6366f1] z-50 text-left">
+                            <h4 class="text-xs font-bold font-heading text-slate-900 dark:text-white uppercase mb-2">Save Elapsed Time</h4>
+                            <div class="space-y-2">
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Project *</label>
+                                    <select x-model="selectedProject" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
+                                        <option value="">Select project...</option>
+                                        {% for ap in active_projects %}
+                                        <option value="{{ ap.id }}">{{ ap.title }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">Notes (Optional)</label>
+                                    <input type="text" x-model="sessionNote" placeholder="What were you working on?" class="w-full text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
+                                </div>
+                                <div class="flex items-center gap-2 pt-1">
+                                    <input type="checkbox" id="timer_billable" x-model="isBillable" class="rounded text-indigo-600 focus:ring-indigo-500 w-3.5 h-3.5">
+                                    <label for="timer_billable" class="text-xs text-slate-700 dark:text-slate-300 font-medium">Billable to client</label>
+                                </div>
+                                <div class="pt-2 flex items-center justify-end gap-2">
+                                    <button type="button" @click="showSaveModal = false" class="text-xs px-2 py-1 text-slate-500 hover:text-slate-900">Cancel</button>
+                                    <button type="button" @click="saveSession()" :disabled="!selectedProject || isSaving" class="text-xs px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg shadow-sm">
+                                        <span x-text="isSaving ? 'Saving...' : 'Save Time'"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
 
                     <!-- Theme Toggle Button -->
                     <form method="post" action="{% url 'authentication:toggle_theme' %}" class="inline">
@@ -356,6 +425,11 @@
             return {
                 seconds: parseInt(localStorage.getItem('ff_timer_seconds') || '0'),
                 isRunning: localStorage.getItem('ff_timer_running') === 'true',
+                showSaveModal: false,
+                selectedProject: '',
+                sessionNote: '',
+                isBillable: true,
+                isSaving: false,
                 interval: null,
                 init() {
                     if (this.isRunning) {
@@ -391,9 +465,50 @@
                     const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
                     const s = String(sec % 60).padStart(2, '0');
                     return `${h}:${m}:${s}`;
+                },
+                async saveSession() {
+                    if (!this.selectedProject || this.seconds <= 0) return;
+                    this.isSaving = true;
+                    try {
+                        const formData = new FormData();
+                        formData.append('project_id', this.selectedProject);
+                        formData.append('seconds', this.seconds);
+                        formData.append('note', this.sessionNote);
+                        formData.append('is_billable', this.isBillable ? 'true' : 'false');
+
+                        const csrfToken = document.querySelector('body').getAttribute('hx-headers');
+                        let token = '';
+                        if (csrfToken) {
+                            try { token = JSON.parse(csrfToken)['X-CSRFToken']; } catch(e){}
+                        }
+
+                        const res = await fetch("{% url 'projects:timer_save' %}", {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': token
+                            },
+                            body: formData
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            this.resetTimer();
+                            this.showSaveModal = false;
+                            this.sessionNote = '';
+                            alert(data.message || 'Time saved to timesheet successfully!');
+                            window.location.reload();
+                        } else {
+                            alert(data.error || 'Failed to save time.');
+                        }
+                    } catch (err) {
+                        console.error('Timer save error:', err);
+                        alert('Error saving timer session.');
+                    } finally {
+                        this.isSaving = false;
+                    }
                 }
             }
         }
+
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();

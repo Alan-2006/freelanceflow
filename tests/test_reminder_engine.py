@@ -8,7 +8,7 @@ from django.utils import timezone
 from apps.clients.models import Client
 from apps.invoicing.models import Invoice, InvoiceStatus
 from apps.reminders.engine import PaymentReminderEngine
-from apps.reminders.models import ReminderLog, ReminderTone
+from apps.reminders.models import ReminderLog, ReminderRule, ReminderTone
 
 
 @pytest.mark.django_db
@@ -161,3 +161,36 @@ class TestReminderEngine:
         log.refresh_from_db()
         assert log.clicked is True
         assert log.clicked_at is not None
+
+    def test_in_app_reminder_channel_creates_notification(self, auth_client):
+        from apps.authentication.models import Notification
+        from apps.reminders.models import ReminderChannelChoice
+        _, user = auth_client
+        profile = user.profile
+        client_obj = Client.objects.create(freelancer=profile, name='InApp Client', email='inapp@client.com')
+        invoice = Invoice.objects.create(
+            freelancer=profile,
+            client=client_obj,
+            invoice_number='INV-INAPP-001',
+            due_date=timezone.now().date(),
+            total_amount=Decimal('350.00'),
+            amount_paid=Decimal('0.00'),
+            status=InvoiceStatus.SENT
+        )
+
+        rule = ReminderRule.objects.create(
+            freelancer=profile,
+            name='In-App Due Notice',
+            trigger_offset_days=0,
+            channel=ReminderChannelChoice.IN_APP,
+            subject_template='In-App Due: {{invoice_number}}',
+            body_template='Please settle {{amount}}',
+            is_active=True
+        )
+
+        stats = PaymentReminderEngine.evaluate_invoices(dry_run=False, ignore_quiet_hours=True)
+        assert stats['dispatched'] >= 1
+        notif = Notification.objects.filter(user=user, title__contains='INV-INAPP-001').first()
+        assert notif is not None
+        assert notif.message == 'Please settle 350.00'
+

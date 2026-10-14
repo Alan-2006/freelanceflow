@@ -38,3 +38,19 @@ class TestAPI:
         response = client.get(docs_url)
         assert response.status_code == 200
         assert 'REST API Reference' in response.content.decode()
+
+    def test_api_time_entries_endpoint(self, auth_client):
+        from apps.projects.models import TimeEntry
+        client_browser, user = auth_client
+        profile = user.profile
+        client = Client.objects.create(freelancer=profile, name='API Client 3', email='api3@client.com')
+        project = Project.objects.create(client=client, title='API Project 2', budget=1500.00)
+        TimeEntry.objects.create(project=project, duration_seconds=3600, hourly_rate=75.00, note='Initial consultation')
+
+        url = reverse('api:timesheet-list')
+        response = client_browser.get(url)
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data['results']) == 1
+        assert data['results'][0]['duration_seconds'] == 3600
+        assert float(data['results'][0]['billable_amount']) == 75.00

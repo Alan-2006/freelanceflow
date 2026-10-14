@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Issue Credit Note - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div>
+        <a href="{% url 'payments:credit_note_list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+            <span>Back to Credit Notes</span>
+        </a>
+        <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Issue Credit Note / Refund</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Issue a formal credit adjustment and record a refund transaction against a settled invoice.</p>
+    </div>
+
+    <form method="post" class="brutal-card p-6 sm:p-8 space-y-5 bg-white dark:bg-slate-900">
+        {% csrf_token %}
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Select Settled Invoice *</label>
+            {{ form.invoice }}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Credit Amount ($) *</label>
+                {{ form.amount }}
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Date Issued *</label>
+                {{ form.issued_date }}
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Reason for Credit / Refund *</label>
+            {{ form.reason }}
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+            <a href="{% url 'payments:credit_note_list' %}" class="px-4 py-2 text-sm text-slate-500">Cancel</a>
+            <button type="submit" class="brutal-btn brutal-btn-primary px-6 py-2.5 text-xs flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>Issue Credit Note & Record Refund</span>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

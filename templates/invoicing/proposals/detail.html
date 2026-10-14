@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Proposal {{ proposal.proposal_number }} - FreelanceFlow{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <!-- Top Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <a href="{% url 'invoicing:proposal_list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-1">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>Back to Proposals</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">{{ proposal.proposal_number }}</h1>
+                {% if proposal.status == 'Accepted' %}
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300">
+                    Accepted
+                </span>
+                {% elif proposal.status == 'Declined' %}
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300">
+                    Declined
+                </span>
+                {% else %}
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-300">
+                    {{ proposal.status }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ public_url }}" target="_blank" class="px-4 py-2 brutal-glass border-2 border-slate-900 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#6366f1]">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                <span>Client View & Sign-off</span>
+            </a>
+
+            {% if not proposal.converted_project %}
+            <form method="post" action="{% url 'invoicing:proposal_convert' pk=proposal.pk %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Convert this proposal into an active project with milestone deliverables?');"
+                        class="brutal-btn brutal-btn-primary px-4 py-2 text-xs flex items-center gap-1.5">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Convert to Project</span>
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'projects:detail' pk=proposal.converted_project.pk %}" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-emerald-700">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                <span>View Converted Project</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Proposal View Card -->
+    <div class="brutal-card p-6 sm:p-10 space-y-8 bg-white dark:bg-slate-900">
+        <!-- Brand & Metadata Header -->
+        <div class="flex flex-col sm:flex-row justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">PROJECT PROPOSAL & ESTIMATE</span>
+                <h2 class="text-xl font-extrabold font-heading text-slate-900 dark:text-white mt-1">{{ proposal.title }}</h2>
+                <p class="text-xs text-slate-500 mt-1">Prepared by: <span class="font-bold text-slate-900 dark:text-white">{{ proposal.freelancer.display_name }}</span></p>
+            </div>
+            <div class="text-xs text-right space-y-1">
+                <div class="text-slate-500">Proposal Date: <span class="font-mono font-bold text-slate-900 dark:text-white">{{ proposal.issue_date|date:"M d, Y" }}</span></div>
+                <div class="text-slate-500">Valid Until: <span class="font-mono font-bold text-rose-600 dark:text-rose-400">{{ proposal.valid_until|date:"M d, Y" }}</span></div>
+                <div class="text-slate-500">Client: <span class="font-bold text-slate-900 dark:text-white">{{ proposal.client.display_title }}</span> ({{ proposal.client.email }})</div>
+            </div>
+        </div>
+
+        <!-- Executive Summary -->
+        {% if proposal.overview %}
+        <div class="space-y-2">
+            <h3 class="text-xs font-extrabold font-heading uppercase tracking-wider text-slate-500 dark:text-slate-400">1. Executive Overview</h3>
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+                {{ proposal.overview }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Scope & Deliverables Table -->
+        <div class="space-y-3">
+            <h3 class="text-xs font-extrabold font-heading uppercase tracking-wider text-slate-500 dark:text-slate-400">2. Scope of Deliverables & Pricing</h3>
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full text-left text-xs">
+                    <thead>
+                        <tr class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-extrabold">
+                            <th class="py-3 px-4">#</th>
+                            <th class="py-3 px-4">Deliverable / Milestone Description</th>
+                            <th class="py-3 px-4 text-center">Quantity</th>
+                            <th class="py-3 px-4 text-right">Unit Rate</th>
+                            <th class="py-3 px-4 text-right">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for item in proposal.line_items.all %}
+                        <tr>
+                            <td class="py-3 px-4 font-mono text-slate-400">{{ forloop.counter }}</td>
+                            <td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">{{ item.description }}</td>
+                            <td class="py-3 px-4 text-center font-mono">{{ item.quantity }}</td>
+                            <td class="py-3 px-4 text-right font-mono">{{ proposal.currency }} ${{ item.unit_price|floatformat:2 }}</td>
+                            <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 dark:text-white">{{ proposal.currency }} ${{ item.total|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end pt-3">
+                <div class="w-64 space-y-1.5 text-xs text-right">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Subtotal:</span>
+                        <span class="font-mono font-bold text-slate-900 dark:text-white">${{ proposal.subtotal|floatformat:2 }}</span>
+                    </div>
+                    {% if proposal.tax_amount > 0 %}
+                    <div class="flex justify-between text-slate-500">
+                        <span>Tax ({{ proposal.tax_rate }}%):</span>
+                        <span class="font-mono font-bold text-slate-900 dark:text-white">${{ proposal.tax_amount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="flex justify-between text-base font-extrabold font-heading text-indigo-600 dark:text-indigo-400 pt-2 border-t border-slate-200 dark:border-slate-700">
+                        <span>Total Estimated:</span>
+                        <span class="font-mono">{{ proposal.currency }} ${{ proposal.total_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Scope -->
+        {% if proposal.scope_of_work %}
+        <div class="space-y-2">
+            <h3 class="text-xs font-extrabold font-heading uppercase tracking-wider text-slate-500 dark:text-slate-400">3. Scope Inclusions & Specifications</h3>
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+                {{ proposal.scope_of_work }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Terms -->
+        {% if proposal.terms %}
+        <div class="space-y-2">
+            <h3 class="text-xs font-extrabold font-heading uppercase tracking-wider text-slate-500 dark:text-slate-400">4. Terms of Engagement</h3>
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed">
+                {{ proposal.terms }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Invoice Builder - FreelanceFlow{% endblock %}
+{% block title %}{% if is_edit %}Edit Invoice {{ invoice.invoice_number }}{% else %}Invoice Builder{% endif %} - FreelanceFlow{% endblock %}
 
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto" x-data="invoiceLiveBuilder()">
     <!-- Top Header -->
     <div class="flex items-center justify-between">
         <div>
-            <a href="{% url 'invoicing:list' %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
+            <a href="{% if is_edit %}{% url 'invoicing:detail' pk=invoice.pk %}{% else %}{% url 'invoicing:list' %}{% endif %}" class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 mb-2">
                 <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-                <span>Back to Invoices</span>
+                <span>{% if is_edit %}Back to Invoice{% else %}Back to Invoices{% endif %}</span>
             </a>
-            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">Live Invoice Builder</h1>
+            <h1 class="text-2xl font-bold font-heading text-slate-900 dark:text-white">
+                {% if is_edit %}Edit Invoice {{ invoice.invoice_number }}{% else %}Live Invoice Builder{% endif %}
+            </h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Design your invoice on the left; watch the client document update live on the right.</p>
         </div>
     </div>
+
 
     <!-- Split Screen: Form (Left) & Real-time Live Preview (Right) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -233,11 +236,15 @@
 function invoiceLiveBuilder() {
     return {
         invoiceNumber: '{{ form.invoice_number.value|default:"" }}',
-        taxRate: 0,
-        discount: 0,
+        taxRate: {{ form.tax_rate.value|default:0 }},
+        discount: {{ form.discount_amount.value|default:0 }},
         items: [
-            {% if pre_milestone %}
-            { desc: 'Milestone: {{ pre_milestone.title }}', qty: 1, price: {{ pre_milestone.amount }} },
+            {% if is_edit and existing_lines %}
+                {% for line in existing_lines %}
+                { desc: '{{ line.description|escapejs }}', qty: {{ line.quantity }}, price: {{ line.unit_price }} },
+                {% endfor %}
+            {% elif pre_milestone %}
+            { desc: 'Milestone: {{ pre_milestone.title|escapejs }}', qty: 1, price: {{ pre_milestone.amount }} },
             {% else %}
             { desc: 'Initial Milestone / Development Sprint', qty: 1, price: 1500.00 }
             {% endif %}
