@@ -4,7 +4,7 @@ from .base import *
 
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*', '.vercel.app', 'localhost', '127.0.0.1'])
+ALLOWED_HOSTS = ['*', '.vercel.app', 'localhost', '127.0.0.1']
 
 # Database configuration with Serverless / Vercel fallback
 database_url = os.environ.get('DATABASE_URL', '').strip()
