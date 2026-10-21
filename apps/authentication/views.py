@@ -101,7 +101,7 @@ def google_login_view(request):
     redirect_uri = getattr(settings, 'GOOGLE_OAUTH_REDIRECT_URI', '').strip()
     if not redirect_uri:
         redirect_uri = request.build_absolute_uri(reverse('authentication:google_callback'))
-        if request.is_secure() or request.headers.get('x-forwarded-proto') == 'https':
+        if request.is_secure() or request.headers.get('x-forwarded-proto') == 'https' or 'vercel.app' in request.get_host():
             redirect_uri = redirect_uri.replace('http://', 'https://')
 
     params = {
@@ -175,7 +175,7 @@ def google_callback_view(request):
         redirect_uri = getattr(settings, 'GOOGLE_OAUTH_REDIRECT_URI', '').strip()
         if not redirect_uri:
             redirect_uri = request.build_absolute_uri(reverse('authentication:google_callback'))
-            if request.is_secure() or request.headers.get('x-forwarded-proto') == 'https':
+            if request.is_secure() or request.headers.get('x-forwarded-proto') == 'https' or 'vercel.app' in request.get_host():
                 redirect_uri = redirect_uri.replace('http://', 'https://')
 
         try:

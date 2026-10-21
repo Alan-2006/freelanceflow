@@ -42,3 +42,6 @@ CSRF_TRUSTED_ORIGINS = env.list(
         'http://127.0.0.1:8000',
     ]
 )
+
+# Google OAuth in production: dynamic unless explicitly specified via environment
+GOOGLE_OAUTH_REDIRECT_URI = os.environ.get('GOOGLE_OAUTH_REDIRECT_URI', '').strip()
