@@ -14,11 +14,11 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Track software subscriptions, contractor fees, and deductible business overhead.</p>
         </div>
         <div class="flex items-center gap-3">
-            <button @click="showModal = true" class="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold text-sm shadow-md shadow-rose-600/20 transition-all">
+            <button @click="showModal = true" class="brutal-btn brutal-btn-primary text-xs flex items-center gap-2">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>Record Expense</span>
             </button>
-            <a href="{% url 'analytics:export_expenses_csv' %}" class="inline-flex items-center gap-2 px-4 py-2 brutal-glass border-2 border-slate-900 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl font-semibold text-sm">
+            <a href="{% url 'analytics:export_expenses_csv' %}" class="brutal-btn brutal-btn-secondary text-xs flex items-center gap-2">
                 <i data-lucide="download" class="w-4 h-4"></i>
                 <span>Export Tax CSV</span>
             </a>
@@ -27,29 +27,29 @@
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#f43f5e]">
-            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Recorded Expenses</span>
+        <div class="bg-white dark:bg-[#22201D] rounded-2xl border border-stone-200/90 dark:border-stone-800 p-5 shadow-xs">
+            <span class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total Recorded Expenses</span>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold font-heading text-rose-600 dark:text-rose-400">${{ total_expenses|floatformat:2 }}</span>
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-stone-900 dark:text-stone-50 font-mono">${{ total_expenses|floatformat:2 }}</span>
             </div>
-            <p class="mt-1 text-xs text-slate-400">Operating overhead</p>
+            <p class="mt-1 text-xs text-stone-500">Operating overhead & deductions</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#6366f1]">
-            <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Logged Entries</span>
+        <div class="bg-white dark:bg-[#22201D] rounded-2xl border border-stone-200/90 dark:border-stone-800 p-5 shadow-xs">
+            <span class="text-xs font-semibold text-amber-800 dark:text-amber-400 uppercase tracking-wider">Logged Receipts</span>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-3xl font-extrabold font-heading text-slate-900 dark:text-white">{{ expenses.count }}</span>
-                <span class="text-xs text-slate-500">receipts</span>
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-stone-900 dark:text-stone-50 font-mono">{{ expenses.count }}</span>
+                <span class="text-xs text-stone-500">entries</span>
             </div>
-            <p class="mt-1 text-xs text-slate-400">Archived for tax deductions</p>
+            <p class="mt-1 text-xs text-stone-500">Archived for tax deductions</p>
         </div>
 
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-900 dark:border-slate-700 p-5 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#10b981]">
-            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Tax Season Ready</span>
+        <div class="bg-white dark:bg-[#22201D] rounded-2xl border border-stone-200/90 dark:border-stone-800 p-5 shadow-xs">
+            <span class="text-xs font-semibold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Tax Season Status</span>
             <div class="mt-2 flex items-baseline gap-2">
-                <span class="text-2xl font-bold font-heading text-emerald-600 dark:text-emerald-400">100% Verified</span>
+                <span class="text-2xl font-bold font-heading text-emerald-700 dark:text-emerald-400">100% Up to Date</span>
             </div>
-            <p class="mt-1 text-xs text-slate-400">Download formatted CSV reports</p>
+            <p class="mt-1 text-xs text-stone-500">Categorized CSV exports ready</p>
         </div>
     </div>
 

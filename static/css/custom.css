@@ -1,417 +1,279 @@
 /* ==========================================================================
-   FREELANCEFLOW: NEO-BRUTAL GLASS DESIGN SYSTEM
-   Fusion of Cyber-Glassmorphism and Neo-Brutalist Tactile Architecture
+   FREELANCEFLOW: WARM MINIMALIST DESIGN SYSTEM
+   Editorial, tactile aesthetic with warm beige, cream, stone, and terracotta
    ========================================================================== */
 
 :root {
-  --primary-accent: #6366f1;
-  --secondary-accent: #8b5cf6;
-  --cyan-accent: #06b6d4;
-  --emerald-accent: #10b981;
-  --rose-accent: #f43f5e;
-  --amber-accent: #f59e0b;
+  /* Warm Subtle Color Palette */
+  --bg-canvas: #FAF8F5;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #FFFDFB;
+  --bg-subtle: #F5F2EB;
+  --bg-subtle-hover: #ECE7DE;
 
-  /* Light Theme Brutal Tokens */
-  --brutal-border: #0f172a;
-  --brutal-border-width: 2px;
-  --brutal-shadow: 4px 4px 0px #0f172a;
-  --brutal-shadow-hover: 7px 7px 0px #0f172a;
-  --brutal-shadow-sm: 2px 2px 0px #0f172a;
-  --brutal-shadow-lg: 8px 8px 0px #0f172a;
-  --brutal-shadow-active: 1px 1px 0px #0f172a;
-  
-  --glass-bg: rgba(255, 255, 255, 0.78);
-  --glass-bg-hover: rgba(255, 255, 255, 0.92);
-  --glass-blur: 20px;
-  --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 0 rgba(0, 0, 0, 0.05);
-  --grid-dot-color: rgba(15, 23, 42, 0.07);
+  /* Text & Contrast */
+  --text-heading: #1C1917;
+  --text-body: #44403C;
+  --text-muted: #78716C;
+  --text-subtle: #A8A29E;
+
+  /* Warm Accent Tokens */
+  --primary-accent: #C2410C;       /* Warm Terracotta */
+  --primary-hover: #9A3412;
+  --secondary-accent: #78350F;     /* Deep Warm Cognac */
+  --accent-sage: #2D6A4F;          /* Muted Sage */
+  --accent-amber: #B45309;         /* Warm Ochre / Amber */
+  --accent-rose: #BE123C;          /* Muted Crimson */
+  --accent-sand: #D8D2C7;
+
+  /* Borders & Shadows */
+  --border-light: #E7E2DA;
+  --border-medium: #DCD6CD;
+  --border-focus: #C2410C;
+
+  --shadow-xs: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-sm: 0 1px 3px rgba(28, 25, 23, 0.05), 0 1px 2px rgba(28, 25, 23, 0.03);
+  --shadow-md: 0 4px 10px -1px rgba(28, 25, 23, 0.06), 0 2px 4px -2px rgba(28, 25, 23, 0.04);
+  --shadow-lg: 0 10px 20px -3px rgba(28, 25, 23, 0.07), 0 4px 6px -4px rgba(28, 25, 23, 0.04);
 }
 
 .dark {
-  /* Dark Theme Cyber-Brutal Tokens */
-  --brutal-border: rgba(255, 255, 255, 0.16);
-  --brutal-border-accent: #6366f1;
-  --brutal-shadow: 4px 4px 0px #6366f1;
-  --brutal-shadow-hover: 6px 6px 0px #818cf8;
-  --brutal-shadow-sm: 2px 2px 0px #6366f1;
-  --brutal-shadow-lg: 8px 8px 0px #4f46e5;
-  --brutal-shadow-active: 1px 1px 0px #6366f1;
+  --bg-canvas: #181715;
+  --bg-surface: #22201D;
+  --bg-surface-elevated: #282522;
+  --bg-subtle: #2C2925;
+  --bg-subtle-hover: #36322D;
 
-  --glass-bg: rgba(15, 23, 42, 0.78);
-  --glass-bg-hover: rgba(30, 41, 59, 0.88);
-  --glass-blur: 22px;
-  --glass-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
-  --grid-dot-color: rgba(99, 102, 241, 0.1);
+  --text-heading: #F5F2EB;
+  --text-body: #D6D0C5;
+  --text-muted: #A8A29E;
+  --text-subtle: #78716C;
+
+  --primary-accent: #EA580C;
+  --primary-hover: #F97316;
+  --secondary-accent: #D97706;
+  --accent-sage: #52B788;
+  --accent-amber: #F59E0B;
+  --accent-rose: #FB7185;
+  --accent-sand: #44403C;
+
+  --border-light: #36332E;
+  --border-medium: #47433D;
+  --border-focus: #EA580C;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Base Body Application */
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-body);
 }
 
 /* ==========================================================================
-   IMMERSIVE AMBIENT ENVIRONMENT & CYBER-GRID
+   CARDS & PANELS (QUIET LUXURY / WARM EDITORIAL)
    ========================================================================== */
 
-/* Cyber-Brutal Dot Grid Background */
-.bg-cyber-grid {
-  background-image: radial-gradient(circle, var(--grid-dot-color) 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
-}
-
-/* Ambient Floating Glowing Orbs */
-.ambient-glow-wrapper {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ambient-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.45;
-  will-change: transform;
-}
-
-.dark .ambient-orb {
-  opacity: 0.32;
-  filter: blur(100px);
-}
-
-.ambient-orb-1 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, #6366f1 0%, #4338ca 70%);
-  top: -100px;
-  left: -80px;
-  animation: orb-drift-1 22s ease-in-out infinite alternate;
-}
-
-.ambient-orb-2 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, #a855f7 0%, #7e22ce 70%);
-  bottom: -150px;
-  right: -100px;
-  animation: orb-drift-2 26s ease-in-out infinite alternate;
-}
-
-.ambient-orb-3 {
-  width: 380px;
-  height: 380px;
-  background: radial-gradient(circle, #06b6d4 0%, #0284c7 70%);
-  top: 35%;
-  right: 25%;
-  animation: orb-drift-3 18s ease-in-out infinite alternate;
-}
-
-@keyframes orb-drift-1 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(120px, 80px) scale(1.15); }
-  100% { transform: translate(60px, 160px) scale(0.95); }
-}
-
-@keyframes orb-drift-2 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-100px, -90px) scale(1.1); }
-  100% { transform: translate(-40px, -180px) scale(0.9); }
-}
-
-@keyframes orb-drift-3 {
-  0% { transform: translate(0, 0) scale(0.9); }
-  50% { transform: translate(-80px, 60px) scale(1.2); }
-  100% { transform: translate(100px, -40px) scale(1); }
-}
-
-/* ==========================================================================
-   NEO-BRUTAL GLASS PANELS & CARDS
-   ========================================================================== */
-
+.brutal-card,
 .brutal-glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  border: var(--brutal-border-width) solid var(--brutal-border);
-  box-shadow: var(--brutal-shadow), var(--glass-specular);
-  border-radius: 1rem;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dark .brutal-glass {
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-/* Interactive Brutal Glass Cards */
-.brutal-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-  border: var(--brutal-border-width) solid var(--brutal-border);
-  box-shadow: var(--brutal-shadow), var(--glass-specular);
-  border-radius: 1rem;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dark .brutal-card {
-  border-color: rgba(255, 255, 255, 0.14);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 0.875rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .brutal-card:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: var(--brutal-shadow-hover), var(--glass-specular);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-medium);
 }
 
-/* Chromatic Brutal Accents */
+/* Subtle Variant Accents */
 .brutal-card-indigo {
-  box-shadow: 4px 4px 0px #6366f1, var(--glass-specular);
+  border-left: 3px solid var(--primary-accent);
 }
-.brutal-card-indigo:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #6366f1, var(--glass-specular);
-}
-
 .brutal-card-emerald {
-  box-shadow: 4px 4px 0px #10b981, var(--glass-specular);
+  border-left: 3px solid var(--accent-sage);
 }
-.brutal-card-emerald:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #10b981, var(--glass-specular);
-}
-
 .brutal-card-rose {
-  box-shadow: 4px 4px 0px #f43f5e, var(--glass-specular);
+  border-left: 3px solid var(--accent-rose);
 }
-.brutal-card-rose:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #f43f5e, var(--glass-specular);
-}
-
-.brutal-card-violet {
-  box-shadow: 4px 4px 0px #8b5cf6, var(--glass-specular);
-}
-.brutal-card-violet:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #8b5cf6, var(--glass-specular);
-}
-
+.brutal-card-violet,
 .brutal-card-cyan {
-  box-shadow: 4px 4px 0px #06b6d4, var(--glass-specular);
-}
-.brutal-card-cyan:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 7px 7px 0px #06b6d4, var(--glass-specular);
+  border-left: 3px solid var(--secondary-accent);
 }
 
 /* ==========================================================================
-   NEO-BRUTAL BUTTONS & CONTROLS
+   BUTTONS (CLEAN, TACTILE, NATURAL)
    ========================================================================== */
 
 .brutal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  border-radius: 0.75rem;
-  border: var(--brutal-border-width) solid var(--brutal-border);
-  box-shadow: var(--brutal-shadow);
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  border-radius: 0.625rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease;
   user-select: none;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.brutal-btn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--brutal-shadow-hover);
-}
-
-.brutal-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: var(--brutal-shadow-active);
-}
-
-/* Primary Brutal Button (Neon Indigo-Violet Gradient) */
+/* Primary Button: Warm Terracotta */
 .brutal-btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
-  color: #ffffff;
-  border-color: #0f172a;
-  box-shadow: 4px 4px 0px #0f172a;
-}
-.dark .brutal-btn-primary {
-  border-color: #a5b4fc;
-  box-shadow: 4px 4px 0px #4f46e5;
+  background-color: var(--primary-accent);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-xs);
 }
 .brutal-btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
-  box-shadow: 6px 6px 0px #0f172a;
+  background-color: var(--primary-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
-.dark .brutal-btn-primary:hover {
-  box-shadow: 6px 6px 0px #818cf8;
+.brutal-btn-primary:active {
+  transform: translateY(0);
 }
 
-/* Secondary / Glass Button */
+/* Secondary Button: Clean Warm Cream / Surface */
 .brutal-btn-secondary {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  color: #0f172a;
-  border-color: var(--brutal-border);
-  box-shadow: var(--brutal-shadow-sm);
-}
-.dark .brutal-btn-secondary {
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 2px 2px 0px #6366f1;
+  background-color: var(--bg-surface);
+  color: var(--text-heading) !important;
+  border: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-xs);
 }
 .brutal-btn-secondary:hover {
-  background: var(--glass-bg-hover);
-  box-shadow: var(--brutal-shadow);
+  background-color: var(--bg-subtle);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+.brutal-btn-secondary:active {
+  transform: translateY(0);
 }
 
 /* ==========================================================================
-   NEO-BRUTAL INPUTS & FORMS
+   INPUTS & FORM CONTROLS
    ========================================================================== */
 
 .brutal-input {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border: var(--brutal-border-width) solid var(--brutal-border);
-  box-shadow: var(--brutal-shadow-sm);
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  color: #0f172a;
-}
-
-.dark .brutal-input {
-  background: rgba(15, 23, 42, 0.7);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #f8fafc;
-  box-shadow: 2px 2px 0px rgba(99, 102, 241, 0.5);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: 0.625rem;
+  color: var(--text-heading);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-xs);
 }
 
 .brutal-input:focus {
   outline: none;
-  transform: translate(-1px, -1px);
-  border-color: #6366f1;
-  box-shadow: 4px 4px 0px #6366f1;
-}
-
-.dark .brutal-input:focus {
-  border-color: #818cf8;
-  box-shadow: 4px 4px 0px #818cf8;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.12);
 }
 
 /* ==========================================================================
-   NEO-BRUTAL BADGES & TAGS
+   BADGES & STATUS PILLS
    ========================================================================== */
 
 .brutal-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.25rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.55rem;
   border-radius: 0.5rem;
-  border: 1.5px solid #0f172a;
-  box-shadow: 2px 2px 0px #0f172a;
-}
-
-.dark .brutal-badge {
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.6);
-}
-
-.brutal-badge-emerald {
-  background: #ecfdf5;
-  color: #065f46;
-  border-color: #059669;
-  box-shadow: 2px 2px 0px #059669;
-}
-.dark .brutal-badge-emerald {
-  background: rgba(6, 78, 59, 0.4);
-  color: #34d399;
-  border-color: #10b981;
-  box-shadow: 2px 2px 0px #10b981;
+  border: 1px solid transparent;
+  line-height: 1;
 }
 
 .brutal-badge-indigo {
-  background: #eef2ff;
-  color: #3730a3;
-  border-color: #4f46e5;
-  box-shadow: 2px 2px 0px #4f46e5;
+  background-color: #FFF7ED;
+  color: #9A3412;
+  border-color: #FED7AA;
 }
 .dark .brutal-badge-indigo {
-  background: rgba(49, 46, 129, 0.4);
-  color: #a5b4fc;
-  border-color: #6366f1;
-  box-shadow: 2px 2px 0px #6366f1;
+  background-color: rgba(154, 52, 18, 0.25);
+  color: #FDBA74;
+  border-color: rgba(251, 146, 60, 0.3);
 }
 
-.brutal-badge-rose {
-  background: #fff1f2;
-  color: #9f1239;
-  border-color: #e11d48;
-  box-shadow: 2px 2px 0px #e11d48;
+.brutal-badge-emerald {
+  background-color: #F0FDF4;
+  color: #166534;
+  border-color: #BBF7D0;
 }
-.dark .brutal-badge-rose {
-  background: rgba(136, 19, 55, 0.4);
-  color: #fda4af;
-  border-color: #f43f5e;
-  box-shadow: 2px 2px 0px #f43f5e;
+.dark .brutal-badge-emerald {
+  background-color: rgba(22, 101, 52, 0.25);
+  color: #86EFAC;
+  border-color: rgba(74, 222, 128, 0.3);
 }
 
 .brutal-badge-amber {
-  background: #fffbeb;
-  color: #92400e;
-  border-color: #d97706;
-  box-shadow: 2px 2px 0px #d97706;
+  background-color: #FEFCE8;
+  color: #854D0E;
+  border-color: #FEF08A;
 }
 .dark .brutal-badge-amber {
-  background: rgba(120, 53, 15, 0.4);
-  color: #fcd34d;
-  border-color: #f59e0b;
-  box-shadow: 2px 2px 0px #f59e0b;
+  background-color: rgba(133, 77, 14, 0.25);
+  color: #FDE047;
+  border-color: rgba(250, 204, 21, 0.3);
+}
+
+.brutal-badge-rose {
+  background-color: #FFF1F2;
+  color: #9F1239;
+  border-color: #FECDD3;
+}
+.dark .brutal-badge-rose {
+  background-color: rgba(159, 18, 57, 0.25);
+  color: #FDA4AF;
+  border-color: rgba(251, 113, 133, 0.3);
+}
+
+.brutal-badge-violet {
+  background-color: #FAF5FF;
+  color: #6B21A8;
+  border-color: #E9D5FF;
 }
 
 /* ==========================================================================
-   CUSTOM SCROLLBAR & MICRO-ANIMATIONS
+   SCROLLBAR & UTILITIES
    ========================================================================== */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
-  border: 1.5px solid var(--brutal-border);
-  border-radius: 4px;
+  background: #D8D2C7;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #B4AA99;
 }
-
-/* Luminous Neon Pulse */
-@keyframes neon-pulse {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4), var(--brutal-shadow);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.7), var(--brutal-shadow);
-  }
+.dark ::-webkit-scrollbar-thumb {
+  background: #47433D;
 }
-
-.animate-neon-pulse {
-  animation: neon-pulse 3s infinite ease-in-out;
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5A544D;
 }
 
 /* Print Friendly Invoices */
 @media print {
-  .no-print, .ambient-glow-wrapper {
+  .no-print {
     display: none !important;
   }
   body {
@@ -420,7 +282,7 @@
   }
   .brutal-glass, .brutal-card {
     box-shadow: none !important;
-    border: 1px solid #000 !important;
-    background: #fff !important;
+    border: 1px solid #d4d4d8 !important;
+    background: #ffffff !important;
   }
 }

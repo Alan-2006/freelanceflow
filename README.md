@@ -8,7 +8,19 @@
 ![HTMX](https://img.shields.io/badge/HTMX-336699?style=for-the-badge)
 ![Alpine.js](https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)
 ![Tests](https://img.shields.io/badge/Tests-30%20Passed%20(100%25)-success?style=for-the-badge)
+
+---
+
+### 🌐 Live Production Deployment
+
+| Service | Link / Status |
+| :--- | :--- |
+| **Live Web App** | 🚀 **[freelanceflow-alantristin2006-9060s-projects.vercel.app](https://freelanceflow-alantristin2006-9060s-projects.vercel.app)** |
+| **Hosting Platform** | Vercel Serverless WSGI (`@vercel/python` 3.12 + WhiteNoise CDN) |
+| **Authentication** | Workspace Credentials + Google OAuth 2.0 Single Sign-On |
+| **Database** | Pre-migrated SQLite DB (serverless fallback) / Cloud PostgreSQL |
 
 ---
 

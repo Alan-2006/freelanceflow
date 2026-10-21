@@ -1,176 +1,184 @@
 {% extends 'base.html' %}
 
-{% block title %}Executive Financial Terminal - FreelanceFlow{% endblock %}
+{% block title %}Financial Overview & Performance - FreelanceFlow{% endblock %}
 
 {% block content %}
-<div class="space-y-8 max-w-7xl mx-auto relative z-10" x-data="dashboardAnalytics()">
-    <!-- Top Welcome & Actions Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 pb-2 border-b-2 border-slate-900/10 dark:border-white/10">
+<div class="space-y-8 max-w-7xl mx-auto pb-12" x-data="dashboardAnalytics()">
+    <!-- Top Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200/80 dark:border-stone-800">
         <div>
-            <div class="flex items-center gap-2 mb-1.5">
-                <span class="brutal-badge brutal-badge-indigo text-[10px]">
-                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping"></span>
-                    LIVE TELEMETRY
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100/70 text-amber-900 border border-amber-300/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-700 dark:bg-amber-400"></span>
+                    Studio Overview
                 </span>
-                <span class="text-[11px] font-mono text-slate-400 font-bold uppercase tracking-wider">
-                    // WORKSPACE METRICS
+                <span class="text-xs text-stone-600 dark:text-stone-300 font-medium">
+                    Updated today
                 </span>
             </div>
-            <h1 class="text-2xl sm:text-4xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight">
-                Financial Pulse & Analytics ⚡
+            <h1 class="text-2xl sm:text-3xl font-bold font-heading text-stone-900 dark:text-stone-50 tracking-tight">
+                Financial Performance & Cash Flow
             </h1>
-            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">
-                Real-time collection health, revenue trends, and cash-flow forecasting for <span class="font-bold text-slate-900 dark:text-slate-100 underline decoration-indigo-500 decoration-2 underline-offset-2">{{ freelancer_profile.display_name }}</span>.
+            <p class="text-xs sm:text-sm text-stone-600 dark:text-stone-400 mt-0.5">
+                Revenue tracking, settlement health, and forecast runway for <span class="font-semibold text-stone-900 dark:text-stone-200">{{ freelancer_profile.display_name }}</span>.
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <a href="{% url 'analytics:reports' %}" class="brutal-btn brutal-btn-secondary px-4 py-2.5 text-xs flex items-center gap-2">
-                <i data-lucide="bar-chart-2" class="w-4 h-4 text-indigo-500"></i>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+            <a href="{% url 'analytics:reports' %}" class="brutal-btn brutal-btn-secondary text-xs flex items-center gap-1.5">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-stone-500"></i>
                 <span>Aging Reports</span>
             </a>
-            <a href="{% url 'invoicing:create' %}" class="brutal-btn brutal-btn-primary px-4 py-2.5 text-xs flex items-center gap-2">
-                <i data-lucide="plus" class="w-4 h-4"></i>
+            <a href="{% url 'analytics:expenses' %}" class="brutal-btn brutal-btn-secondary text-xs flex items-center gap-1.5">
+                <i data-lucide="receipt" class="w-3.5 h-3.5 text-stone-500"></i>
+                <span>Log Expense</span>
+            </a>
+            <a href="{% url 'invoicing:create' %}" class="brutal-btn brutal-btn-primary text-xs flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 <span>New Invoice</span>
             </a>
+        </div>
     </div>
 
     {% if kpis.currency_breakdown|length > 1 %}
-    <!-- Multi-Currency Breakdown Banner -->
-    <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border-2 border-indigo-200 dark:border-indigo-800 flex flex-wrap items-center gap-3 text-xs shadow-sm">
-        <span class="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
-            <i data-lucide="globe" class="w-4 h-4 text-indigo-600 dark:text-indigo-400"></i>
-            Multi-Currency Invoicing Totals:
+    <!-- Multi-Currency Overview -->
+    <div class="p-3.5 rounded-xl bg-amber-50/60 dark:bg-stone-800/60 border border-amber-200/70 dark:border-stone-700 flex flex-wrap items-center gap-2.5 text-xs text-stone-700 dark:text-stone-300">
+        <span class="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-amber-700"></i>
+            Currency Breakdown:
         </span>
         {% for c in kpis.currency_breakdown %}
-        <span class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-200 shadow-xs">
-            <span class="font-bold text-indigo-600 dark:text-indigo-400">{{ c.currency }}</span>: Paid ${{ c.total_paid|floatformat:2 }} / Billed ${{ c.total_billed|floatformat:2 }}
+        <span class="px-2 py-0.5 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 font-mono text-[11px] font-medium text-stone-800 dark:text-stone-200">
+            <strong class="text-amber-800 dark:text-amber-400">{{ c.currency }}</strong>: Paid ${{ c.total_paid|floatformat:2 }} / Billed ${{ c.total_billed|floatformat:2 }}
         </span>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- KPI Metrics Grid with Payment Health Meter -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <!-- Card 1: Total Revenue -->
-        <div class="p-4 brutal-card brutal-card-emerald border-2 border-emerald-600/80 dark:border-emerald-500/60 flex flex-col justify-between">
+    <!-- 4 Primary KPI Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1: Revenue Collected -->
+        <div class="bg-white dark:bg-[#22201D] p-5 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 font-heading">REVENUE COLLECTED</span>
-                <div class="p-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 border border-emerald-500/40">
-                    <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+                <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">Total Revenue Collected</span>
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/50">
+                    <i data-lucide="wallet" class="w-4 h-4"></i>
                 </div>
             </div>
-            <div class="my-2">
-                <span class="text-xl sm:text-2xl font-extrabold font-heading text-slate-900 dark:text-white font-mono tracking-tight">${{ kpis.total_revenue|floatformat:0 }}</span>
+            <div class="my-3">
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-stone-900 dark:text-stone-50 font-mono tracking-tight">
+                    ${{ kpis.total_revenue|floatformat:2 }}
+                </span>
             </div>
-            <div class="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
-                <i data-lucide="check-circle" class="w-3 h-3"></i>
-                <span>Settled in bank</span>
-            </div>
-        </div>
-
-        <!-- Card: Net Profit & Expenses -->
-        <div class="p-4 brutal-card brutal-card-indigo border-2 border-indigo-600/80 dark:border-indigo-500/60 flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700 dark:text-indigo-400 font-heading">NET PROFIT</span>
-                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300">{{ kpis.profit_margin_pct }}%</span>
-            </div>
-            <div class="my-2">
-                <span class="text-xl sm:text-2xl font-extrabold font-heading {% if kpis.net_profit >= 0 %}text-emerald-600 dark:text-emerald-400{% else %}text-rose-600{% endif %} font-mono tracking-tight">${{ kpis.net_profit|floatformat:0 }}</span>
-            </div>
-            <div class="text-[10px] text-slate-500 dark:text-slate-400">
-                Expenses: <span class="font-bold text-rose-500 font-mono">${{ kpis.total_expenses|floatformat:0 }}</span>
+            <div class="flex items-center gap-1.5 text-xs text-emerald-800 dark:text-emerald-300 font-medium">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                <span>Settled payments to date</span>
             </div>
         </div>
 
-
-        <!-- Card 2: Outstanding -->
-        <div class="p-5 brutal-card brutal-card-indigo border-2 border-indigo-600/80 dark:border-indigo-500/60 flex flex-col justify-between">
+        <!-- Card 2: Net Profit & Expenses -->
+        <div class="bg-white dark:bg-[#22201D] p-5 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-700 dark:text-indigo-400 font-heading">OUTSTANDING BILLED</span>
-                <div class="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 border border-indigo-500/40 shadow-[2px_2px_0px_#6366f1]">
+                <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">Net Profit</span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-300">
+                    {{ kpis.profit_margin_pct }}% margin
+                </span>
+            </div>
+            <div class="my-3">
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading {% if kpis.net_profit >= 0 %}text-stone-900 dark:text-stone-50{% else %}text-rose-700{% endif %} font-mono tracking-tight">
+                    ${{ kpis.net_profit|floatformat:2 }}
+                </span>
+            </div>
+            <div class="text-xs text-stone-600 dark:text-stone-300">
+                Tracked Expenses: <span class="font-medium text-stone-800 dark:text-stone-200 font-mono">${{ kpis.total_expenses|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Outstanding Billed -->
+        <div class="bg-white dark:bg-[#22201D] p-5 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">Outstanding Invoices</span>
+                <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center justify-center border border-amber-200/60 dark:border-amber-800/50">
                     <i data-lucide="clock" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="my-3">
-                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-indigo-600 dark:text-indigo-400 font-mono tracking-tight">${{ kpis.outstanding|floatformat:2 }}</span>
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-amber-900 dark:text-amber-300 font-mono tracking-tight">
+                    ${{ kpis.outstanding|floatformat:2 }}
+                </span>
             </div>
-            <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+            <div class="flex items-center gap-1.5 text-xs text-amber-800 dark:text-amber-400 font-medium">
                 <i data-lucide="hourglass" class="w-3.5 h-3.5"></i>
-                <span>Awaiting client payment</span>
+                <span>Awaiting client clearance</span>
             </div>
         </div>
 
-        <!-- Card 3: Overdue -->
-        <div class="p-5 brutal-card brutal-card-rose border-2 border-rose-600/80 dark:border-rose-500/60 flex flex-col justify-between">
+        <!-- Card 4: Overdue Backlog -->
+        <div class="bg-white dark:bg-[#22201D] p-5 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-700 dark:text-rose-400 font-heading">OVERDUE INVOICES</span>
-                <div class="p-2 rounded-xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 border border-rose-500/40 shadow-[2px_2px_0px_#f43f5e]">
-                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                <span class="text-xs font-semibold text-stone-600 dark:text-stone-300">Overdue Amount</span>
+                <div class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 flex items-center justify-center border border-rose-200/60 dark:border-rose-800/50">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
                 </div>
             </div>
             <div class="my-3">
-                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-rose-600 dark:text-rose-400 font-mono tracking-tight">${{ kpis.overdue_amount|floatformat:2 }}</span>
+                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-rose-800 dark:text-rose-400 font-mono tracking-tight">
+                    ${{ kpis.overdue_amount|floatformat:2 }}
+                </span>
             </div>
-            <div class="flex items-center gap-1.5 text-[11px] text-rose-500 font-bold">
-                <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                <span>Active reminders running</span>
+            <div class="flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-400 font-medium">
+                <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                <span><a href="{% url 'reminders:dashboard' %}" class="underline hover:text-rose-800">Automated reminders active</a></span>
             </div>
-        </div>
-
-        <!-- Card 4: Avg Days to Pay -->
-        <div class="p-5 brutal-card brutal-card-violet border-2 border-purple-600/80 dark:border-purple-500/60 flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-purple-700 dark:text-purple-400 font-heading">AVG SETTLEMENT</span>
-                <div class="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-purple-600 border border-purple-500/40 shadow-[2px_2px_0px_#8b5cf6]">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                </div>
-            </div>
-            <div class="my-3 flex items-baseline gap-1.5">
-                <span class="text-2xl sm:text-3xl font-extrabold font-heading text-slate-900 dark:text-white font-mono tracking-tight">{{ kpis.avg_days_to_pay }}</span>
-                <span class="text-xs text-slate-400 font-bold uppercase font-mono">Days</span>
-            </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                <span>From invoice issuance</span>
-            </div>
-        </div>
-
-        <!-- Card 5: Payment Health Speedometer Gauge -->
-        <div class="p-5 brutal-card brutal-card-cyan border-2 border-cyan-600/80 dark:border-cyan-500/60 flex flex-col justify-between">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-cyan-700 dark:text-cyan-400 font-heading">COLLECTION HEALTH</span>
-                <span class="brutal-badge text-[10px] bg-cyan-100 text-cyan-800 dark:bg-cyan-950/80 dark:text-cyan-300 border-cyan-500">{{ kpis.collection_health_rate }}%</span>
-            </div>
-            <div class="my-2 flex items-center justify-center">
-                <!-- Speedometer SVG -->
-                <svg class="w-24 h-14" viewBox="0 0 100 55">
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="currentColor" class="text-slate-300 dark:text-slate-700" stroke-width="8" stroke-linecap="round" />
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"
-                          stroke-dasharray="125.6"
-                          :stroke-dashoffset="125.6 - (125.6 * ({{ kpis.collection_health_rate }} / 100))"
-                          class="transition-all duration-1000 ease-out" />
-                </svg>
-            </div>
-            <span class="text-[10px] font-bold text-center uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
-                {% if kpis.collection_health_rate >= 85 %}✓ Optimal Liquidity
-                {% elif kpis.collection_health_rate >= 60 %}⚡ Moderate Inflow
-                {% else %}⚠ Overdue Backlog{% endif %}
-            </span>
         </div>
     </div>
 
-    <!-- Interactive Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Collection Health Score Banner -->
+    <div class="bg-stone-50 dark:bg-[#22201D] p-4 sm:p-5 rounded-2xl border border-stone-200 dark:border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-amber-800 dark:text-amber-400 shadow-xs font-heading font-extrabold text-base">
+                {{ kpis.collection_health_rate }}%
+            </div>
+            <div>
+                <h4 class="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    Payment Collection Health
+                    {% if kpis.collection_health_rate >= 80 %}
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Optimal Liquidity</span>
+                    {% elif kpis.collection_health_rate >= 50 %}
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">Moderate Inflow</span>
+                    {% else %}
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Attention Needed</span>
+                    {% endif %}
+                </h4>
+                <p class="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
+                    Percentage of invoices recovered on schedule over the past 90 rolling days.
+                </p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'reminders:dashboard' %}" class="text-xs font-semibold text-amber-900 dark:text-amber-400 hover:underline flex items-center gap-1">
+                <span>View Reminder Cadence</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Charts Section (8:4 layout) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Monthly Revenue Chart (8 cols) -->
-        <div class="lg:col-span-8 brutal-card p-6 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#6366f1] space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
+        <div class="lg:col-span-8 bg-white dark:bg-[#22201D] p-6 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-stone-800">
                 <div>
-                    <h3 class="text-base font-extrabold font-heading text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="trending-up" class="w-4 h-4 text-indigo-500"></i>
+                    <h3 class="text-base font-bold font-heading text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-amber-800 dark:text-amber-500"></i>
                         Monthly Revenue Trajectory
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Settled receipts over the past 6 months</p>
+                    <p class="text-xs text-stone-600 dark:text-stone-300">Settled receipts over the past 6 months</p>
                 </div>
-                <span class="brutal-badge brutal-badge-indigo text-[10px]">HISTORICAL DATA</span>
+                <span class="text-xs px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-medium border border-stone-200/60 dark:border-stone-700">
+                    Past 6 Months
+                </span>
             </div>
             <div class="h-68">
                 <canvas id="revenueChart"></canvas>
@@ -178,16 +186,15 @@
         </div>
 
         <!-- Income by Client Breakdown (4 cols) -->
-        <div class="lg:col-span-4 brutal-card p-6 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#8b5cf6] space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
+        <div class="lg:col-span-4 bg-white dark:bg-[#22201D] p-6 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-stone-800">
                 <div>
-                    <h3 class="text-base font-extrabold font-heading text-slate-900 dark:text-white flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="w-4 h-4 text-violet-500"></i>
-                        Client Share
+                    <h3 class="text-base font-bold font-heading text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-4 h-4 text-amber-800 dark:text-amber-500"></i>
+                        Client Revenue Share
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Top paying partners</p>
+                    <p class="text-xs text-stone-600 dark:text-stone-300">Top paying partnerships</p>
                 </div>
-                <span class="brutal-badge brutal-badge-violet text-[10px]">DISTRIBUTION</span>
             </div>
             <div class="h-68 flex items-center justify-center">
                 <canvas id="clientDonutChart"></canvas>
@@ -195,61 +202,137 @@
         </div>
     </div>
 
-    <!-- Cash-Flow Runway & "What-If" Forecast Simulator -->
-    <div class="brutal-card p-6 border-2 border-slate-900 dark:border-white/20 shadow-[5px_5px_0px_#0f172a] dark:shadow-[5px_5px_0px_#10b981] space-y-5">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b-2 border-slate-900/10 dark:border-white/10">
+    <!-- Cash-Flow Runway & Forecast Simulator -->
+    <div class="bg-white dark:bg-[#22201D] p-6 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-stone-200/70 dark:border-stone-800">
             <div>
-                <h3 class="text-base font-extrabold font-heading text-slate-900 dark:text-white flex items-center gap-2">
-                    <i data-lucide="calculator" class="w-4 h-4 text-emerald-500"></i>
+                <h3 class="text-base font-bold font-heading text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <i data-lucide="calculator" class="w-4 h-4 text-amber-800 dark:text-amber-500"></i>
                     Cash-Flow Runway Forecast (Next 30, 60, 90 Days)
                 </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Weighted probabilistically by each client's reliability score.</p>
+                <p class="text-xs text-stone-600 dark:text-stone-300">Probabilistically weighted by client historical reliability scores.</p>
             </div>
 
-            <!-- "What-If" Delayed Payment Simulator Toggle -->
-            <label class="flex items-center gap-2.5 cursor-pointer brutal-glass !rounded-xl px-3 py-1.5 border-2 border-slate-900/30 dark:border-white/20 hover:scale-102 transition-transform">
-                <input type="checkbox" x-model="simulateLate" class="rounded text-indigo-600 focus:ring-0 w-4 h-4">
-                <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Simulate -20% Late Payment Risk</span>
+            <!-- Delayed Payment Simulator Toggle -->
+            <label class="flex items-center gap-2.5 cursor-pointer bg-stone-50 dark:bg-stone-800/80 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 hover:border-stone-300 transition-colors">
+                <input type="checkbox" x-model="simulateLate" class="rounded text-amber-800 focus:ring-0 w-4 h-4">
+                <span class="text-xs font-semibold text-stone-700 dark:text-stone-300">Simulate -20% Late Payment Friction</span>
             </label>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-            <div class="p-4 rounded-xl brutal-glass border-2 border-slate-900/30 dark:border-white/20 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#6366f1]">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-heading">// Next 30 Days</span>
-                <div class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white mt-1.5 font-mono"
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+            <div class="p-4 rounded-xl bg-stone-50/70 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">Next 30 Days</span>
+                <div class="text-2xl font-bold font-heading text-stone-900 dark:text-stone-50 mt-1.5 font-mono"
                      x-text="'$' + (simulateLate ? ({{ cash_flow.next_30_days }} * 0.8).toFixed(2) : {{ cash_flow.next_30_days }})">
                     ${{ cash_flow.next_30_days }}
                 </div>
-                <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Imminent expected</span>
+                <span class="text-xs text-stone-500">Imminent expected settlements</span>
             </div>
 
-            <div class="p-4 rounded-xl brutal-glass border-2 border-slate-900/30 dark:border-white/20 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#8b5cf6]">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-heading">// 31 - 60 Days</span>
-                <div class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white mt-1.5 font-mono"
+            <div class="p-4 rounded-xl bg-stone-50/70 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">31 - 60 Days</span>
+                <div class="text-2xl font-bold font-heading text-stone-900 dark:text-stone-50 mt-1.5 font-mono"
                      x-text="'$' + (simulateLate ? ({{ cash_flow.next_60_days }} * 0.8).toFixed(2) : {{ cash_flow.next_60_days }})">
                     ${{ cash_flow.next_60_days }}
                 </div>
-                <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Medium term pipeline</span>
+                <span class="text-xs text-stone-500">Milestone deliverable pipeline</span>
             </div>
 
-            <div class="p-4 rounded-xl brutal-glass border-2 border-slate-900/30 dark:border-white/20 shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#06b6d4]">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-heading">// 61 - 90 Days</span>
-                <div class="text-2xl font-extrabold font-heading text-slate-900 dark:text-white mt-1.5 font-mono"
+            <div class="p-4 rounded-xl bg-stone-50/70 dark:bg-stone-800/40 border border-stone-200/80 dark:border-stone-700">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">61 - 90 Days</span>
+                <div class="text-2xl font-bold font-heading text-stone-900 dark:text-stone-50 mt-1.5 font-mono"
                      x-text="'$' + (simulateLate ? ({{ cash_flow.next_90_days }} * 0.8).toFixed(2) : {{ cash_flow.next_90_days }})">
                     ${{ cash_flow.next_90_days }}
                 </div>
-                <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Future forecast</span>
+                <span class="text-xs text-stone-500">Retainer renewals & projects</span>
             </div>
 
-            <div class="p-4 rounded-xl brutal-glass border-2 border-indigo-600 dark:border-indigo-400 shadow-[4px_4px_0px_#6366f1] bg-indigo-50/50 dark:bg-indigo-950/40">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 font-heading">// 90-Day Runway</span>
-                <div class="text-2xl font-extrabold font-heading text-indigo-700 dark:text-indigo-300 mt-1.5 font-mono"
+            <div class="p-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-900 dark:text-amber-400">Total 90-Day Runway</span>
+                <div class="text-2xl font-bold font-heading text-amber-900 dark:text-amber-300 mt-1.5 font-mono"
                      x-text="'$' + (simulateLate ? ({{ cash_flow.total_runway }} * 0.8).toFixed(2) : {{ cash_flow.total_runway }})">
                     ${{ cash_flow.total_runway }}
                 </div>
-                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">Total projected cash</span>
+                <span class="text-xs text-amber-800/80 dark:text-amber-400/80 font-medium">Weighted projected cash</span>
             </div>
         </div>
+    </div>
+
+    <!-- Creative Feature: Recent Invoices & Direct Actions -->
+    <div class="bg-white dark:bg-[#22201D] p-6 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xs space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-200/70 dark:border-stone-800">
+            <div>
+                <h3 class="text-base font-bold font-heading text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-4 h-4 text-amber-800 dark:text-amber-500"></i>
+                    Recent Invoicing Activity
+                </h3>
+                <p class="text-xs text-stone-600 dark:text-stone-300">Latest client billings and payment statuses</p>
+            </div>
+            <a href="{% url 'invoicing:list' %}" class="text-xs font-semibold text-amber-900 dark:text-amber-400 hover:underline flex items-center gap-1">
+                <span>View all invoices</span>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+
+        {% if recent_invoices %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-stone-200/60 dark:border-stone-800 text-stone-600 dark:text-stone-300 uppercase tracking-wider text-[10px]">
+                        <th class="pb-2.5 font-semibold">Invoice #</th>
+                        <th class="pb-2.5 font-semibold">Client</th>
+                        <th class="pb-2.5 font-semibold">Due Date</th>
+                        <th class="pb-2.5 font-semibold text-right">Total Amount</th>
+                        <th class="pb-2.5 font-semibold text-right">Balance Due</th>
+                        <th class="pb-2.5 font-semibold text-center">Status</th>
+                        <th class="pb-2.5 font-semibold text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100 dark:divide-stone-800/60">
+                    {% for inv in recent_invoices %}
+                    <tr class="hover:bg-stone-50/70 dark:hover:bg-stone-800/40 transition-colors">
+                        <td class="py-3 font-mono font-semibold text-stone-900 dark:text-stone-100">
+                            <a href="{% url 'invoicing:detail' pk=inv.pk %}" class="hover:text-amber-800 hover:underline">
+                                {{ inv.invoice_number }}
+                            </a>
+                        </td>
+                        <td class="py-3 text-stone-700 dark:text-stone-300 font-medium">
+                            {{ inv.client.name }}
+                        </td>
+                        <td class="py-3 text-stone-500 font-mono text-[11px]">
+                            {{ inv.due_date|date:"M d, Y" }}
+                        </td>
+                        <td class="py-3 text-right font-mono font-medium text-stone-900 dark:text-stone-100">
+                            ${{ inv.total_amount|floatformat:2 }}
+                        </td>
+                        <td class="py-3 text-right font-mono font-bold {% if inv.balance_due > 0 %}text-amber-800 dark:text-amber-400{% else %}text-emerald-700{% endif %}">
+                            ${{ inv.balance_due|floatformat:2 }}
+                        </td>
+                        <td class="py-3 text-center">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold
+                                {% if inv.status == 'PAID' %}bg-emerald-100 text-emerald-800 border border-emerald-200
+                                {% elif inv.status == 'OVERDUE' %}bg-rose-100 text-rose-800 border border-rose-200
+                                {% elif inv.status == 'SENT' %}bg-amber-100 text-amber-800 border border-amber-200
+                                {% else %}bg-stone-100 text-stone-700 border border-stone-200{% endif %}">
+                                {{ inv.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 text-right">
+                            <a href="{% url 'invoicing:detail' pk=inv.pk %}" class="text-xs text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white font-medium hover:underline">
+                                View →
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="py-8 text-center text-xs text-stone-600 dark:text-stone-300">
+            No invoices generated yet. Create your first invoice to populate your dashboard!
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -261,7 +344,7 @@ function dashboardAnalytics() {
             this.initCharts();
         },
         initCharts() {
-            // Revenue Chart
+            // Revenue Bar Chart with warm terracotta & sand tones
             const revData = {{ revenue_chart_json|safe }};
             const ctxRev = document.getElementById('revenueChart');
             if (ctxRev && revData.labels.length > 0) {
@@ -270,34 +353,52 @@ function dashboardAnalytics() {
                     data: {
                         labels: revData.labels,
                         datasets: [{
-                            label: 'Settled Income ($)',
+                            label: 'Settled Receipts ($)',
                             data: revData.data,
-                            backgroundColor: 'rgba(99, 102, 241, 0.85)',
-                            borderColor: '#0f172a',
+                            backgroundColor: 'rgba(194, 65, 12, 0.85)',
+                            hoverBackgroundColor: 'rgba(154, 52, 18, 0.95)',
                             borderRadius: 6,
-                            borderWidth: 2,
+                            borderSkipped: false,
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1C1917',
+                                titleFont: { family: 'Plus Jakarta Sans', size: 12 },
+                                bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
+                                padding: 10,
+                                cornerRadius: 8,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' Settled: $' + Number(context.raw).toLocaleString();
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            y: { 
-                                beginAtZero: true, 
-                                grid: { color: 'rgba(156, 163, 175, 0.15)' },
-                                ticks: { font: { family: 'Space Grotesk', weight: 'bold' } }
-                            },
-                            x: { 
+                            x: {
                                 grid: { display: false },
-                                ticks: { font: { family: 'Space Grotesk', weight: 'bold' } }
+                                ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#78716C' }
+                            },
+                            y: {
+                                grid: { color: 'rgba(28, 25, 23, 0.05)' },
+                                ticks: {
+                                    font: { family: 'Plus Jakarta Sans', size: 11 },
+                                    color: '#78716C',
+                                    callback: function(val) { return '$' + val; }
+                                }
                             }
                         }
                     }
                 });
             }
 
-            // Client Donut Chart
+            // Client Donut Chart with warm editorial palette
             const clientData = {{ client_chart_json|safe }};
             const ctxClient = document.getElementById('clientDonutChart');
             if (ctxClient && clientData.labels.length > 0) {
@@ -308,29 +409,47 @@ function dashboardAnalytics() {
                         datasets: [{
                             data: clientData.data,
                             backgroundColor: [
-                                '#6366f1', '#a855f7', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e'
+                                '#C2410C', // Terracotta
+                                '#78350F', // Warm Cognac
+                                '#2D6A4F', // Muted Sage
+                                '#B45309', // Warm Ochre
+                                '#57534E', // Warm Stone
+                                '#D97706', // Amber
                             ],
-                            borderColor: '#0f172a',
-                            borderWidth: 2
+                            borderColor: '#FFFFFF',
+                            borderWidth: 2,
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        cutout: '70%',
                         plugins: {
-                            legend: { 
-                                position: 'bottom', 
-                                labels: { 
-                                    boxWidth: 12, 
-                                    font: { family: 'Space Grotesk', size: 10, weight: 'bold' } 
-                                } 
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { family: 'Plus Jakarta Sans', size: 11 },
+                                    color: '#78716C',
+                                    boxWidth: 10,
+                                    padding: 12,
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#1C1917',
+                                cornerRadius: 8,
+                                padding: 10,
+                                callbacks: {
+                                    label: function(context) {
+                                        return ' ' + context.label + ': $' + Number(context.raw).toLocaleString();
+                                    }
+                                }
                             }
                         }
                     }
                 });
             }
         }
-    }
+    };
 }
 </script>
 {% endblock %}

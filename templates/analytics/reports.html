@@ -17,12 +17,12 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <a href="{% url 'analytics:export_aging_csv' %}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-xs shadow-xs flex items-center gap-1.5 transition-all">
+            <a href="{% url 'analytics:export_aging_csv' %}" class="brutal-btn brutal-btn-primary text-xs flex items-center gap-1.5">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Export Aging CSV</span>
             </a>
-            <a href="{% url 'analytics:export_invoices_csv' %}" class="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-all">
-                <i data-lucide="file-text" class="w-3.5 h-3.5 text-indigo-500"></i>
+            <a href="{% url 'analytics:export_invoices_csv' %}" class="brutal-btn brutal-btn-secondary text-xs flex items-center gap-1.5">
+                <i data-lucide="file-text" class="w-3.5 h-3.5 text-stone-500"></i>
                 <span>Export All Invoices CSV</span>
             </a>
         </div>
@@ -31,12 +31,12 @@
     <!-- Aging Buckets Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {% for key, bucket in aging_buckets.items %}
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ bucket.label }}</span>
-            <div class="mt-2 text-2xl font-bold font-heading text-slate-900 dark:text-white font-mono">
+        <div class="p-5 rounded-2xl bg-white dark:bg-[#22201D] border border-stone-200/90 dark:border-stone-800 shadow-xs">
+            <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">{{ bucket.label }}</span>
+            <div class="mt-2 text-2xl font-bold font-heading text-stone-900 dark:text-stone-50 font-mono">
                 ${{ bucket.amount|floatformat:2 }}
             </div>
-            <span class="text-xs text-slate-500">{{ bucket.count }} Overdue Invoice{{ bucket.count|pluralize }}</span>
+            <span class="text-xs text-stone-500">{{ bucket.count }} Overdue Invoice{{ bucket.count|pluralize }}</span>
         </div>
         {% endfor %}
     </div>

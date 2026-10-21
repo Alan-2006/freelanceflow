@@ -1,6 +1,7 @@
 from .base import *
 
 DEBUG = True
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'testserver']
 
 # Database defaults to SQLite in dev if DATABASE_URL is not provided or empty
 database_url = env('DATABASE_URL', default='')

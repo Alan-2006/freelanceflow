@@ -39,19 +39,24 @@ def reminder_dashboard_view(request):
     PaymentReminderEngine.ensure_default_rules_exist(freelancer)
 
     rules = freelancer.reminder_rules.all()
-    logs = ReminderLog.objects.filter(invoice__freelancer=freelancer)[:25]
+    base_logs = ReminderLog.objects.filter(invoice__freelancer=freelancer).select_related('invoice', 'invoice__client')
 
-    # Calculate open rate
-    total_sent = logs.count()
-    total_opened = logs.filter(opened=True).count()
+    # Calculate metrics on base queryset before taking slice
+    total_sent = base_logs.count()
+    total_opened = base_logs.filter(opened=True).count()
+    total_clicked = base_logs.filter(clicked=True).count()
     open_rate = round((total_opened / total_sent * 100), 1) if total_sent > 0 else 0
+    click_rate = round((total_clicked / total_sent * 100), 1) if total_sent > 0 else 0
+    logs = base_logs.order_by('-sent_at')[:25]
 
     return render(request, 'reminders/dashboard.html', {
         'rules': rules,
         'logs': logs,
         'total_sent': total_sent,
         'total_opened': total_opened,
+        'total_clicked': total_clicked,
         'open_rate': open_rate,
+        'click_rate': click_rate,
     })
 
 
