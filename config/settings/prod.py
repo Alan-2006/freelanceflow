@@ -43,5 +43,9 @@ CSRF_TRUSTED_ORIGINS = env.list(
     ]
 )
 
-# Google OAuth in production: dynamic unless explicitly specified via environment
-GOOGLE_OAUTH_REDIRECT_URI = os.environ.get('GOOGLE_OAUTH_REDIRECT_URI', '').strip()
+# Google OAuth in production: dynamic unless an explicit production redirect URI is specified
+oauth_redirect = os.environ.get('GOOGLE_OAUTH_REDIRECT_URI', '').strip()
+if '127.0.0.1' in oauth_redirect or 'localhost' in oauth_redirect:
+    GOOGLE_OAUTH_REDIRECT_URI = ''
+else:
+    GOOGLE_OAUTH_REDIRECT_URI = oauth_redirect
