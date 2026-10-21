@@ -21,6 +21,7 @@ try:
         src_db = BASE_DIR / 'db.sqlite3'
         if not tmp_db.exists() and src_db.exists():
             shutil.copyfile(src_db, tmp_db)
+            os.chmod(tmp_db, 0o666)
 except Exception as e:
     print(f"Warning copying SQLite db: {e}", file=sys.stderr)
 
@@ -46,3 +47,6 @@ def app(environ, start_response):
             "</body></html>"
         )
         return [body.encode('utf-8')]
+
+# WSGI compatibility alias
+application = app

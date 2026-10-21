@@ -9,17 +9,24 @@ mkdir -p staticfiles
 # Set settings module for static asset compilation
 export DJANGO_SETTINGS_MODULE=config.settings.prod
 
-# Install dependencies in the build container environment using Python 3.12
-if command -v uv &> /dev/null; then
-    echo "Using uv to set up Python 3.12 and install dependencies..."
-    uv venv --python 3.12 .build_venv
-    source .build_venv/bin/activate
-    uv pip install -r requirements.txt
-    python manage.py collectstatic --noinput --clear
+# Find Python binary
+if command -v python3.12 &> /dev/null; then
+    PYTHON_CMD="python3.12"
+elif command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
 else
-    echo "Using pip to install dependencies..."
-    python3 -m pip install --break-system-packages -r requirements.txt || python3 -m pip install -r requirements.txt
-    python3 manage.py collectstatic --noinput --clear
+    echo "Python not found in build container!"
+    exit 1
 fi
 
-echo "Build complete!"
+echo "Using Python binary: $($PYTHON_CMD --version)"
+
+# Install dependencies required for collectstatic
+$PYTHON_CMD -m pip install --break-system-packages -r requirements.txt || $PYTHON_CMD -m pip install -r requirements.txt
+
+# Run collectstatic
+$PYTHON_CMD manage.py collectstatic --noinput --clear
+
+echo "FreelanceFlow static build complete!"
